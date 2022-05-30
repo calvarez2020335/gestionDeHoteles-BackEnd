@@ -9,9 +9,8 @@ mongoose.connect('mongodb://localhost:27017/Hoteles', { useNewUrlParser: true, u
 	console.log('Conectado a la base de datos.');
 
 	app.listen(3000, function () {
-		console.log('Corriendo en el puerto 3000!');
+		console.log('Corriendo en el puerto 3000!');		
+		crearAdminInicio();
 	});
 
 }).catch(error => console.log(error));
-
-crearAdminInicio();
