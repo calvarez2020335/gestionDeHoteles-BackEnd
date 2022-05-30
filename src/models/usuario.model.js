@@ -5,6 +5,7 @@ const UsuarioSchema = Schema({
     
 	nombre: String,
 	email: String,
+	imgUrl: String,
 	password: String,
 	rol: String
     

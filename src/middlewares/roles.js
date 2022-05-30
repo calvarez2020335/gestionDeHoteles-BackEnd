@@ -1,5 +1,5 @@
 exports.verUsuario = function(req, res, next) {
-	if(req.user.rol !== 'ROL_USUARIO') return res.status(403).send({mensaje: 'Solo puede acceder la empresa'});
+	if(req.user.rol !== 'ROL_USUARIO') return res.status(403).send({mensaje: 'Solo puede acceder los usuarios'});
 	next();
 };
 
