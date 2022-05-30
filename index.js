@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const app = require('./app');
-//const {registrarAdmin} = require('./src/controllers/usuario.controller')
+const {crearAdminInicio} = require('./src/controllers/usuario.controller');
 
 mongoose.Promise = global.Promise;
 
@@ -14,4 +14,4 @@ mongoose.connect('mongodb://localhost:27017/Hoteles', { useNewUrlParser: true, u
 
 }).catch(error => console.log(error));
 
-// registrarAdmin();
+crearAdminInicio();
