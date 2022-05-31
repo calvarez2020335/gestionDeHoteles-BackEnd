@@ -8,6 +8,9 @@ const UsuarioRutas = require('./src/routes/usuario.routes');
 app.use(express.urlencoded({ extended: false}));
 app.use(express.json());
 
+//imagenes
+app.use('/public', express.static(`${__dirname}/storage/imgs`));
+
 // CABECERAS
 app.use(cors());
 
