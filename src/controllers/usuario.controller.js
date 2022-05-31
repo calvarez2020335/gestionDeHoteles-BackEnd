@@ -45,6 +45,13 @@ function registrarUsuario(req, res) {
 	if (parametro.nombre && parametro.email && parametro.password) {
 		usuarioModel.nombre = parametro.nombre;
 		usuarioModel.email = parametro.email;
+		//Imagen
+
+		if(req.file){
+			const { filename } = req.file;
+			usuarioModel.setImgUrl(filename);
+		}	
+
 		usuarioModel.password = parametro.password; 
 		usuarioModel.rol = 'ROL_USUARIO';		
 		Usuario.find({ email: parametro.email }, (err, usuarioEncontrado) => {

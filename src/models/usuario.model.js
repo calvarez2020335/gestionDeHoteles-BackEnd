@@ -11,4 +11,8 @@ const UsuarioSchema = Schema({
     
 });
 
+UsuarioSchema.methods.setImgUrl = function setImgUrl(filename) {
+	this.imgUrl = `localhost:3000/public/${filename}`;
+};
+
 module.exports = mongoose.model('Usuarios', UsuarioSchema);
