@@ -11,7 +11,7 @@ const api = express.Router();
 // Rutas
 api.post('/login', usuarioController.Login);
 api.post('/registrarUsuario', upload.single('image') ,usuarioController.registrarUsuario);
-api.post('/registrarGerente', usuarioController.registraGerente);
+api.post('/registrarGerente', upload.single('image'), usuarioController.registraGerente);
 
 
 module.exports = api;
