@@ -1,6 +1,7 @@
 const Usuario = require('../models/usuario.model');
 const bcrypt = require('bcrypt-nodejs');
 const jwt = require('../services/jwt');
+let regExp = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
 
 function Login(req, res) {
 	var parametros = req.body;
@@ -38,15 +39,18 @@ function crearAdminInicio() {
 	});
 }
 
+//Funciones del usuario
+
 function registrarUsuario(req, res) {
 	var parametro = req.body;
 	var usuarioModel = new Usuario();
-  
+	let emailOk = regExp.test(parametro.email);
+	if(emailOk != true) return res.status(500).send({ mensaje: 'No se reconoce el email'});
 	if (parametro.nombre && parametro.email && parametro.password) {
 		usuarioModel.nombre = parametro.nombre;
+
 		usuarioModel.email = parametro.email;
 		//Imagen
-
 		if(req.file){
 			const { filename } = req.file;
 			usuarioModel.setImgUrl(filename);
@@ -75,13 +79,20 @@ function registrarUsuario(req, res) {
 	}
 }
 
+//Funciones de gerentes de hoteles
 function registraGerente(req, res){
 	var parametro = req.body;
 	var usuarioModel = new Usuario();
-  
+	let emailOk = regExp.test(parametro.email);
+	if(emailOk != true) return res.status(500).send({ mensaje: 'No se reconoce el email'});
 	if (parametro.nombre && parametro.email && parametro.password) {
 		usuarioModel.nombre = parametro.nombre;
 		usuarioModel.email = parametro.email;  
+		//Imagen
+		if(req.file){
+			const { filename } = req.file;
+			usuarioModel.setImgUrl(filename);
+		}
 		usuarioModel.password = parametro.password; 
 		usuarioModel.rol = 'ROL_ADMINHOTEL';
 		Usuario.find({ email: parametro.email }, (err, usuarioEncontrado) => {
@@ -105,9 +116,15 @@ function registraGerente(req, res){
 	}
 }
 
+//Funciones para ambos
+
+//function editar(req, res) {
+//}
+
 module.exports  = {
 	crearAdminInicio,
 	Login,
 	registrarUsuario,
-	registraGerente
+	registraGerente,
+	//editar
 };
