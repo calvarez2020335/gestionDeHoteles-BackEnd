@@ -158,6 +158,7 @@ function editarUsuario(req, res) {
 		});
 	} else if (req.user.rol == 'ROL_ADMINHOTEL') {
 		//GERENTE
+		parametro.image = usuarioModel.imgUrl;
 		Usuario.findByIdAndUpdate(req.user.sub ,{$set: {
 			nombre: parametro.nombre,
 			email: parametro.email,
@@ -172,6 +173,7 @@ function editarUsuario(req, res) {
 
 	} else {
 		//CLIENTE
+		parametro.image = usuarioModel.imgUrl;
 		Usuario.findByIdAndUpdate(req.user.sub ,{$set: {
 			nombre: parametro.nombre,
 			email: parametro.email,
