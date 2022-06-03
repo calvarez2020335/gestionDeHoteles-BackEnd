@@ -3,8 +3,10 @@ const Schema = mongoose.Schema;
 
 const HotelSchema = Schema({
 	Nombre: String,
+	Descripcion: String,
 	imgUrlHoltel: String,
-	usuario: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
+	Dueño: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
+	usuarios: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
 });
 
 module.exports = mongoose.model('Hoteles', HotelSchema);
