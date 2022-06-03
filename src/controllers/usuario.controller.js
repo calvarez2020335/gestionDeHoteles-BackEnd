@@ -1,7 +1,7 @@
 const Usuario = require('../models/usuario.model');
 const bcrypt = require('bcrypt-nodejs');
 const jwt = require('../services/jwt');
-let regExp = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
+let regExp = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 function Login(req, res) {
 	var parametros = req.body;
@@ -132,12 +132,12 @@ function editarUsuario(req, res) {
 	var idUser = req.params.idUser;
 	var parametro = req.body;
 	var emailOk = regExp.test(parametro.email);
-	console.log(emailOk);
 	if (emailOk != true) return res.status(500).send({ mensaje: 'No se reconoce el email' });
+	delete parametro.password;		
+	delete parametro.rol;
 	if (req.user.rol == 'ROL_ADMIN') {
 		//ADMIN
-		delete parametro.password;		
-		delete parametro.rol;
+		if(idUser == null) return res.status(500).send({ mensaje: 'Necesita el id del usuario'});
 		Usuario.findByIdAndUpdate(idUser,{$set: {
 			nombre: parametro.nombre,
 			email: parametro.email
@@ -150,8 +150,6 @@ function editarUsuario(req, res) {
 		});
 	} else if (req.user.rol == 'ROL_ADMINHOTEL') {
 		//GERENTE
-		delete parametro.password;		
-		delete parametro.rol;
 		Usuario.findByIdAndUpdate(req.user.sub ,{$set: {
 			nombre: parametro.nombre,
 			email: parametro.email
@@ -165,8 +163,6 @@ function editarUsuario(req, res) {
 
 	} else {
 		//CLIENTE
-		delete parametro.password;		
-		delete parametro.rol;
 		Usuario.findByIdAndUpdate(req.user.sub ,{$set: {
 			nombre: parametro.nombre,
 			email: parametro.email
