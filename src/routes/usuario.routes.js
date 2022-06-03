@@ -13,6 +13,6 @@ api.post('/login', usuarioController.Login);
 api.post('/registrarUsuario', upload.single('image') ,usuarioController.registrarUsuario);
 api.post('/registrarGerente', upload.single('image'), usuarioController.registraGerente);
 api.put('/editarUsuario/:idUser?', [md_autenticacion.Auth, upload.single('image')] , usuarioController.editarUsuario );
-
+api.delete('/eliminarUsuario/:idUser?', md_autenticacion.Auth, usuarioController.eliminarUsuario);
 
 module.exports = api;
