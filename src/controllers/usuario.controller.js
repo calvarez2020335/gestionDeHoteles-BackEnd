@@ -135,12 +135,20 @@ function editarUsuario(req, res) {
 	if (emailOk != true) return res.status(500).send({ mensaje: 'No se reconoce el email' });
 	delete parametro.password;		
 	delete parametro.rol;
+	//Imagen
+	var usuarioModel = new Usuario();
+	if (req.file) {
+		const { filename } = req.file;
+		usuarioModel.setImgUrl(filename);
+	}
 	if (req.user.rol == 'ROL_ADMIN') {
 		//ADMIN
+		parametro.image = usuarioModel.imgUrl;
 		if(idUser == null) return res.status(500).send({ mensaje: 'Necesita el id del usuario'});
 		Usuario.findByIdAndUpdate(idUser,{$set: {
 			nombre: parametro.nombre,
-			email: parametro.email
+			email: parametro.email,
+			imgUrl: parametro.image
 		},},{ new: true },
 		(err, usuarioActualizado) => {
 			if (err)return res.status(500).send({ mensaje: 'Error en la peticion de editar-admin' });
@@ -152,7 +160,8 @@ function editarUsuario(req, res) {
 		//GERENTE
 		Usuario.findByIdAndUpdate(req.user.sub ,{$set: {
 			nombre: parametro.nombre,
-			email: parametro.email
+			email: parametro.email,
+			imgUrl: parametro.image
 		},},{ new: true },
 		(err, usuarioActualizado) => {
 			if (err)return res.status(500).send({ mensaje: 'Error en la peticon de admin-hotel' });
@@ -165,7 +174,8 @@ function editarUsuario(req, res) {
 		//CLIENTE
 		Usuario.findByIdAndUpdate(req.user.sub ,{$set: {
 			nombre: parametro.nombre,
-			email: parametro.email
+			email: parametro.email,
+			imgUrl: parametro.image
 		},},{ new: true },
 		(err, usuarioActualizado) => {
 			if (err)return res.status(500).send({ mensaje: 'Error en la peticon de Usuario' });
