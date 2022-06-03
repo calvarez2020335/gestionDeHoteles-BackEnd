@@ -12,7 +12,7 @@ const api = express.Router();
 api.post('/login', usuarioController.Login);
 api.post('/registrarUsuario', upload.single('image') ,usuarioController.registrarUsuario);
 api.post('/registrarGerente', upload.single('image'), usuarioController.registraGerente);
-api.put('/editarUsuario/:idUser?', md_autenticacion.Auth , usuarioController.editarUsuario );
+api.put('/editarUsuario/:idUser?', [md_autenticacion.Auth, upload.single('image')] , usuarioController.editarUsuario );
 
 
 module.exports = api;
