@@ -189,11 +189,42 @@ function editarUsuario(req, res) {
 
 }
 
+function eliminarUsuario(req, res) {
+
+	const idUser = req.params.idUser;
+
+	if (req.user.rol == 'ROL_ADMIN'){
+		//Administrador
+		if(idUser == null) return res.status(500).send({ mensaje: 'Necesita el id del usuario'});
+		Usuario.findOne({_id: idUser}, (err, usuarioEncontrado)=>{
+			if(usuarioEncontrado.rol == 'ROL_ADMIN') return res.status(500).send({ mensaje: 'No puede eliminar al administrador'});
+			Usuario.findByIdAndDelete(idUser, (err, usuarioEliminado)=>{
+				if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar usuario'});
+				if(!usuarioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar usuario admin'});
+				return res.status(200).send({usuarioEliminado: usuarioEliminado});
+			});
+		});
+	}else if (req.user.rol == 'ROL_ADMINHOTEL') {
+		Usuario.findByIdAndDelete(req.user.sub, (err, usuarioEliminado)=>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar usuario hotel'});
+			if(!usuarioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar usuario hotel'});
+			return res.status(200).send({usuarioEliminado: usuarioEliminado});
+		});
+	}else{
+		Usuario.findByIdAndDelete(req.user.sub, (err, usuarioEliminado)=>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar usuario usuario'});
+			if(!usuarioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar usuario usuario'});
+			return res.status(200).send({usuarioEliminado: usuarioEliminado});
+		});
+	}
+}
+
 
 module.exports = {
 	crearAdminInicio,
 	Login,
 	registrarUsuario,
 	registraGerente,
-	editarUsuario
+	editarUsuario,
+	eliminarUsuario
 };
