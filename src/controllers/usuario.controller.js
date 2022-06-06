@@ -219,6 +219,41 @@ function eliminarUsuario(req, res) {
 	}
 }
 
+function verUsuarios(req, res){
+	Usuario.find({}, (err, usuariosEncontrados)=>{
+		if(err) return res.status(404).send({mensaje: 'Error en la petición de ver usuario usuario'});
+		if(!usuariosEncontrados) return res.status(404).send({mensaje: 'Error en la petición usuario'});
+		return res.status(200).send({usuarios: usuariosEncontrados});
+	});
+}
+
+function verUsuarioId(req, res){
+	const idUser = req.params.idUser;
+
+	if (req.user.rol == 'ROL_ADMIN') {
+		//Super Admin
+		Usuario.findById({_id: idUser}, (err, usuarioEncontrado)=>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar usuarios admin'});
+			if(!usuarioEncontrado) return res.status(500).send({ mensaje: 'Erroa la busacar id admin'});
+			return res.status(200).send({usuarioEncontrado: usuarioEncontrado});
+		});
+	}else if (req.user.rol == 'ROL_ADMINHOTEL'){
+		//Gerente Hotel
+		Usuario.findById({_id: req.user.sub}, (err, usuarioEncontrado)=>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar usuarios admin'});
+			if(!usuarioEncontrado) return res.status(500).send({ mensaje: 'Erroa la busacar id admin'});
+			return res.status(200).send({usuarioEncontrado: usuarioEncontrado});
+		});
+	}else{
+		//Usuario
+		Usuario.findById({_id: req.user.sub}, (err, usuarioEncontrado)=>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar usuarios admin'});
+			if(!usuarioEncontrado) return res.status(500).send({ mensaje: 'Erroa la busacar id admin'});
+			return res.status(200).send({usuarioEncontrado: usuarioEncontrado});
+		});
+	}
+
+}
 
 module.exports = {
 	crearAdminInicio,
@@ -226,5 +261,7 @@ module.exports = {
 	registrarUsuario,
 	registraGerente,
 	editarUsuario,
-	eliminarUsuario
+	eliminarUsuario,
+	verUsuarios,
+	verUsuarioId
 };
