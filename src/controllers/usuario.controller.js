@@ -156,23 +156,8 @@ function editarUsuario(req, res) {
 				return res.status(500).send({ mensaje: 'Error al editar usuario-admin' });
 			return res.status(200).send({ usuarioAdmin: usuarioActualizado });
 		});
-	} else if (req.user.rol == 'ROL_ADMINHOTEL') {
-		//GERENTE
-		parametro.image = usuarioModel.imgUrl;
-		Usuario.findByIdAndUpdate(req.user.sub ,{$set: {
-			nombre: parametro.nombre,
-			email: parametro.email,
-			imgUrl: parametro.image
-		},},{ new: true },
-		(err, usuarioActualizado) => {
-			if (err)return res.status(500).send({ mensaje: 'Error en la peticon de admin-hotel' });
-			if (!usuarioActualizado)
-				return res.status(500).send({ mensaje: 'Error al editar admin-hotel' });
-			return res.status(200).send({ AdminHotel: usuarioActualizado });
-		});
-
 	} else {
-		//CLIENTE
+		//CLIENTE y ADMIN HOTEL
 		parametro.image = usuarioModel.imgUrl;
 		Usuario.findByIdAndUpdate(req.user.sub ,{$set: {
 			nombre: parametro.nombre,
@@ -204,12 +189,6 @@ function eliminarUsuario(req, res) {
 				return res.status(200).send({usuarioEliminado: usuarioEliminado});
 			});
 		});
-	}else if (req.user.rol == 'ROL_ADMINHOTEL') {
-		Usuario.findByIdAndDelete(req.user.sub, (err, usuarioEliminado)=>{
-			if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar usuario hotel'});
-			if(!usuarioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar usuario hotel'});
-			return res.status(200).send({usuarioEliminado: usuarioEliminado});
-		});
 	}else{
 		Usuario.findByIdAndDelete(req.user.sub, (err, usuarioEliminado)=>{
 			if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar usuario usuario'});
@@ -220,11 +199,16 @@ function eliminarUsuario(req, res) {
 }
 
 function verUsuarios(req, res){
-	Usuario.find({}, (err, usuariosEncontrados)=>{
-		if(err) return res.status(404).send({mensaje: 'Error en la petición de ver usuario usuario'});
-		if(!usuariosEncontrados) return res.status(404).send({mensaje: 'Error en la petición usuario'});
-		return res.status(200).send({usuarios: usuariosEncontrados});
-	});
+	if (req.user.rol == 'ROL_ADMIN') {
+		Usuario.find({}, (err, UsuarioEncontrado) => {
+			return res.status(200).send({ Empresas: UsuarioEncontrado });
+		});
+	}else{
+		Usuario.find({ _id: req.user.rol }, (err, UsuarioEncontrado) => {
+			return res.status(200).send({ mensaje: UsuarioEncontrado });
+		});
+	}
+	
 }
 
 function verUsuarioId(req, res){
@@ -232,23 +216,17 @@ function verUsuarioId(req, res){
 
 	if (req.user.rol == 'ROL_ADMIN') {
 		//Super Admin
+		if(idUser == null) return res.status(500).send({ mensaje: 'Necesita el id del usuario'});
 		Usuario.findById({_id: idUser}, (err, usuarioEncontrado)=>{
 			if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar usuarios admin'});
-			if(!usuarioEncontrado) return res.status(500).send({ mensaje: 'Erroa la busacar id admin'});
-			return res.status(200).send({usuarioEncontrado: usuarioEncontrado});
-		});
-	}else if (req.user.rol == 'ROL_ADMINHOTEL'){
-		//Gerente Hotel
-		Usuario.findById({_id: req.user.sub}, (err, usuarioEncontrado)=>{
-			if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar usuarios admin'});
-			if(!usuarioEncontrado) return res.status(500).send({ mensaje: 'Erroa la busacar id admin'});
+			if(!usuarioEncontrado) return res.status(500).send({ mensaje: 'Error la busacar id admin'});
 			return res.status(200).send({usuarioEncontrado: usuarioEncontrado});
 		});
 	}else{
-		//Usuario
+		//Usuario y Hoteles
 		Usuario.findById({_id: req.user.sub}, (err, usuarioEncontrado)=>{
-			if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar usuarios admin'});
-			if(!usuarioEncontrado) return res.status(500).send({ mensaje: 'Erroa la busacar id admin'});
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar usuarios otro'});
+			if(!usuarioEncontrado) return res.status(500).send({ mensaje: 'Error la busacar id otro'});
 			return res.status(200).send({usuarioEncontrado: usuarioEncontrado});
 		});
 	}
