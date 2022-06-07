@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 
 const ReservacionSchema = Schema({
 	NombreReservacion: String,
-	FechaEntrada: Date,
-	FechaSalida: Date,
+	FechaEntrada: Timestamp,
+	FechaSalida: Timestamp,
 	habitacion:  { type: Schema.Types.ObjectId, ref: 'Habitaciones' },
 	usuario: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
 });

@@ -6,6 +6,7 @@ const ServicioSchema = Schema({
 	descripcion: String,
 	Precio: Number,
 	habitacion:  { type: Schema.Types.ObjectId, ref: 'Habitaciones' },
+	Usuario: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
 });
 
 module.exports = mongoose.model('Servicios', ServicioSchema);
