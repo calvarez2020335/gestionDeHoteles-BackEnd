@@ -7,6 +7,8 @@ const HabitacionSchema = Schema({
 	tipoHabitacion:String,
 	Precio:Number,
 	hotel: { type: Schema.Types.ObjectId, ref: 'Hoteles' }
-});
+},
+{timestamps:true}
+);
 
 module.exports = mongoose.model('Habitaciones', HabitacionSchema);
