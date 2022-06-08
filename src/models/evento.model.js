@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const EventoSchema = Schema({
 	Nombre: String,
+	tipoEvento:String,
 	Descripcion: String,
 	imgUrlEvento: String,
 	hotel: { type: Schema.Types.ObjectId, ref: 'Hoteles' },

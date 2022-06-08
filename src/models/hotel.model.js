@@ -6,7 +6,7 @@ const HotelSchema = Schema({
 	Descripcion: String,
 	Dirección: String,
 	imgUrlHoltel: String,
-	Dueno: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
+	adminHotel: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
 });
 
 module.exports = mongoose.model('Hoteles', HotelSchema);
