@@ -95,9 +95,42 @@ function editarEventos(req, res) {
 	});
 }
 
-function eliminarEventos(req, res) {}
+function eliminarEventos(req, res) {
+	const idEvento = req.params.idEvento;
+	if(idEvento == null) return res.status(500).send({mensaje: 'Necesita el id del evento'});
 
-function verEventos(req, res) {}
+	Evento.findById({ _id: idEvento }, (err, eventoEncontrado) => {
+		if (eventoEncontrado.adminHotel != req.user.sub)
+			return res
+				.status(500)
+				.send({ mensaje: 'No puede eliminar eventos que no le pertenezcan' });
+			
+		Evento.findByIdAndDelete(idEvento, (err, eventoEliminado) => {
+			if(err) return res.status(500).send({mensaje:'Error en la petición de eliminar evento' });
+			if(!eventoEliminado) return res.status(500).send({ mensaje: 'Error en eliminar evento'});
+			return res.status(200).send({mensaje: eventoEliminado});
+		});	
+
+	});
+}
+
+function verEventos(req, res) {
+	if(req.user.rol == 'ROL_ADMINHOTEL'){
+		Evento.find({adminHotel: req.user.sub}, (err, eventoEncontrado) => {
+			if(err) return res.status(404).send({mensaje:'Error en al petición de ver los eventos' });
+			if(!eventoEncontrado) return res.status(404).send({mensaje: 'Error al ver los eventos'});
+			return res.status(200).send({eventos: eventoEncontrado});
+		});
+	}else{
+		const idHotel = req.params.idHotel;
+		if(idHotel == null) return res.status(500).send({mensaje:'Necesita el id del hotel'});
+		Evento.find({hotel: idHotel}, (err, eventoEncontrado) => {
+			if(err) return res.status(404).send({mensaje:'Error en al petición de ver los eventos' });
+			if(!eventoEncontrado) return res.status(404).send({mensaje: 'Error al ver los eventos'});
+			return res.status(200).send({eventos: eventoEncontrado});
+		});
+	}
+}
 
 function verEventosId(req, res) {}
 
