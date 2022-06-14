@@ -12,6 +12,6 @@ const api = express.Router();
 api.post('/RegistrarHotel', md_autenticacion.Auth, hotelController.creaHotel);
 api.put('/editarHotel/:idHotel' ,[md_autenticacion.Auth, upload.single('image')] , hotelController.editarHotel);
 api.delete('/eliminarHotel/:idHotel', md_autenticacion.Auth ,hotelController.eliminarHotel);
-api.get( '/verHoteles' , hotelController.verHoteles );
-api.get( '/verHotelesId/:idHotel' , hotelController.verHotelesId );
+api.get('/verHoteles' ,hotelController.verHoteles );
+api.get('/verHotelesId/:idHotel' ,hotelController.verHotelesId );
 module.exports = api;
