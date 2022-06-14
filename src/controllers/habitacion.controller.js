@@ -24,6 +24,7 @@ function registrarHabitacion(req, res) {
 				habitacionModel.Precio = parametro.Precio;
 				habitacionModel.hotel = idHotel;
 				habitacionModel.usuario = req.user.sub;
+				habitacionModel.diponibilidad = 'true';
 				habitacionModel.save((err, habitacionRegistrada)=>{
 					if(err) return res.status(500).send({ mensaje: 'Error en la peticion de registrar habitación' });
 					if(!habitacionRegistrada) return res.status(500).send({ mensaje: 'Error en registrar habitación' });
