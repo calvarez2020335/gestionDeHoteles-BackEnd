@@ -132,12 +132,27 @@ function verEventos(req, res) {
 	}
 }
 
-function verEventosId(req, res) {}
+function verEventosId(req, res) {
+	const idEvento = req.params.idHotel;
+	if(req.user.rol == 'ROL_ADMINHOTEL'){
+		Evento.findOne({_id: idEvento, adminHotel: req.user.sub}, (err, eventoEncontrado)=>{
+			if(err) return res.status(404).send({mensaje:'Error en al petición de ver los eventos id admin' });
+			if(!eventoEncontrado) return res.status(404).send({mensaje: 'No puede ver eventos de otros hoteles'});
+			return res.status(200).send({eventos: eventoEncontrado});
+		});
+	}else{
+		Evento.findOne({_id: idEvento}, (err, eventoEncontrado)=>{
+			if(err) return res.status(404).send({mensaje:'Error en la petición de ver los eventos general'});
+			if(!eventoEncontrado) return res.status(404).send({mensaje: 'Error al ver los eventos'});
+			return res.status(200).send({evento: eventoEncontrado});
+		});
+	}
+}
 
 module.exports = {
 	crearEvento,
 	editarEventos,
 	eliminarEventos,
 	verEventos,
-	verEventosId,
+	verEventosId
 };
