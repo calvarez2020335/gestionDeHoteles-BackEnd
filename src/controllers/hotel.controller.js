@@ -124,11 +124,36 @@ function editarHotel (req, res){
 	}
 }
 
+function eliminarHotel(req, res) {
+	var idHotel = req.params.idHotel;
 
+	if (req.user.rol == 'ROL_ADMIN'){
+		//Administrador
+		if(idHotel == null) return res.status(500).send({ mensaje: 'Necesita el id del hotel'});
+
+		Hotel.findByIdAndDelete(idHotel, (err, hotelEliminado)=>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar usuario'});
+			if(!hotelEliminado) return res.status(500).send({ mensaje: 'Error al eliminar usuario admin'});
+			return res.status(200).send({hotelEliminadoAdmin: hotelEliminado});
+		});
+	
+	}else if (req.user.rol == 'ROL_ADMINHOTEL' ){
+		Hotel.findOne({_id: idHotel}, (err, HotelEncontrado)=>{
+			if (err)return res.status(500).send({ mensaje: 'Error en la peticion de Hotel' });
+			if (!HotelEncontrado) return res.status(500).send({ mensaje: 'No puede eliminar al administrador'});
+		});
+		Usuario.findByIdAndDelete(req.user.sub, (err, usuarioEliminado)=>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar usuario usuario'});
+			if(!usuarioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar usuario usuario'});
+			return res.status(200).send({usuarioEliminado: usuarioEliminado});
+		});
+	}
+}
 
 
 
 module.exports = {
 	creaHotel,
-	editarHotel
+	editarHotel,
+	eliminarHotel
 };
