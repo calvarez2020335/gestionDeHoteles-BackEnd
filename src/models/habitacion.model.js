@@ -7,7 +7,7 @@ const HabitacionSchema = Schema({
 	tipoHabitacion:String,
 	Precio:Number,
 	hotel: { type: Schema.Types.ObjectId, ref: 'Hoteles' },
-	usuario: {type: Schema.Types.String, ref: 'Usuarios'}
+	usuario: {type: Schema.Types.ObjectId, ref: 'Usuarios'}
 });
 
 HabitacionSchema.methods.setImgUrl = function setImgUrl(filename) {
