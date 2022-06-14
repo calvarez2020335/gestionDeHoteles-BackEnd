@@ -6,6 +6,7 @@ const HabitacionSchema = Schema({
 	imgUrlHabitacion: String,
 	tipoHabitacion:String,
 	Precio:Number,
+	diponibilidad: Boolean,
 	hotel: { type: Schema.Types.ObjectId, ref: 'Hoteles' },
 	usuario: {type: Schema.Types.ObjectId, ref: 'Usuarios'}
 });
