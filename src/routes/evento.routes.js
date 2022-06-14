@@ -10,5 +10,6 @@ api.post('/crearEvento', [md_autenticacion.Auth, md_roles.verHotelAdmin, upload.
 api.put('/editarEvento/:idEvento', [md_autenticacion.Auth, md_roles.verHotelAdmin], eventoController.editarEventos);
 api.delete('/eliminarEvento/:idEvento', [md_autenticacion.Auth, md_roles.verHotelAdmin], eventoController.eliminarEventos);
 api.get('/verEventos/:idHotel?', md_autenticacion.Auth, eventoController.verEventos);
+api.get('/verEventosId/:idHotel', md_autenticacion.Auth, eventoController.verEventosId);
 
 module.exports = api;
