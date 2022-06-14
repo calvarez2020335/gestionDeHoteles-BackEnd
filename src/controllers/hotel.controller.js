@@ -130,33 +130,27 @@ function editarHotel (req, res){
 
 function eliminarHotel(req, res) {
 	var idHotel = req.params.idHotel;
-
 	if (req.user.rol == 'ROL_ADMIN'){
 		//Administrador
 		console.log(idHotel);
 		if(idHotel == null) return res.status(500).send({ mensaje: 'Necesita el id del hotel'});
-
 		Servicios.deleteMany( {hotel: idHotel }, (err, servicioEliminado) =>{
 			if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar servicios'});
 			if(!servicioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar servicios admin'});
 			//return res.status(200).send({servicioEliminado: servicioEliminado});
 			console.log(servicioEliminado);
-
 			Reservacion.deleteMany( {hotel: idHotel }, (err, reservacionEliminado) =>{ 
 				if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar reservacion'});
 				if(!reservacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar reservacion admin'});
 				console.log(reservacionEliminado);
-
 				Habitacion.deleteMany( {hotel: idHotel }, (err, HabitacionEliminado) =>{ 
 					if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar habitacion'});
 					if(!HabitacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar habitacion admin'});
-					console.log(HabitacionEliminado);
-					
+					console.log(HabitacionEliminado);	
 					Eventos.deleteMany( {hotel: idHotel }, (err, EventosEliminado) =>{ 
 						if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar eventos'});
 						if(!EventosEliminado) return res.status(500).send({ mensaje: 'Error al eliminar eventos admin'});
 						console.log(EventosEliminado);
-
 						Hotel.findByIdAndDelete(idHotel, (err, hotelEliminado)=>{
 							if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar hotel'});
 							if(!hotelEliminado) return res.status(500).send({ mensaje: 'Error al eliminar hotel admin'});
@@ -164,48 +158,31 @@ function eliminarHotel(req, res) {
 								reservacionEliminado , HabitacionEliminado, EventosEliminado});
 						});
 					});
-
-
 				});
-
-		
-
 			});
-
-	
-		
 		} );
-
-
-	
 	}else if (req.user.rol == 'ROL_ADMINHOTEL' ){
 		Hotel.findOne({_id: idHotel}, (err, HotelEncontrado)=>{
 			if (err)return res.status(500).send({ mensaje: 'Error en la peticion de Hotel' });
 			if (!HotelEncontrado) return res.status(500).send({ mensaje: 'No se pudo encontra al hotel'});
-		
 			if (req.user.sub == HotelEncontrado.adminHotel) {
-				
 				Servicios.deleteMany( {hotel: idHotel }, (err, servicioEliminado) =>{
 					if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar servicios'});
 					if(!servicioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar servicios admin'});
 					//return res.status(200).send({servicioEliminado: servicioEliminado});
 					console.log(servicioEliminado);
-	
 					Reservacion.deleteMany( {hotel: idHotel }, (err, reservacionEliminado) =>{ 
 						if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar reservacion'});
 						if(!reservacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar reservacion admin'});
 						console.log(reservacionEliminado);
-	
 						Habitacion.deleteMany( {hotel: idHotel }, (err, HabitacionEliminado) =>{ 
 							if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar habitacion'});
 							if(!HabitacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar habitacion admin'});
 							console.log(HabitacionEliminado);
-						
 							Eventos.deleteMany( {hotel: idHotel }, (err, EventosEliminado) =>{ 
 								if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar eventos'});
 								if(!EventosEliminado) return res.status(500).send({ mensaje: 'Error al eliminar eventos admin'});
 								console.log(EventosEliminado);
-	
 								Hotel.findByIdAndDelete(idHotel, (err, hotelEliminado)=>{
 									if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar hotel'});
 									if(!hotelEliminado) return res.status(500).send({ mensaje: 'Error al eliminar hotel admin'});
@@ -213,31 +190,42 @@ function eliminarHotel(req, res) {
 										reservacionEliminado , HabitacionEliminado, EventosEliminado});
 								});
 							});
-	
-	
 						});
-	
-			
-	
 					});
-	
-		
-			
 				} );
 			} else {
 				return res.status(500).send({ mensaje: 'No Puedes Eliminar Este Hotel No te Pertenece'});
 			}
-
-		
 		});
-
 	}
 }
 
+function verHoteles(req, res){
 
+	Hotel.find({}, (err, hotelEncontrado) => {
+		if(err) return res.status(500).send({ mensaje: 'Error en la petición de ver hoteles'});
+		if(!hotelEncontrado) return res.status(500).send({ mensaje: 'Error no se pudo encotrar hoteles'});
+		return res.status(200).send({ Hoteles: hotelEncontrado });
+	});
+}
+
+function verHotelesId(req, res){
+	const idHotel = req.params.idHotel;
+
+	if(idHotel == null) return res.status(500).send({ mensaje: 'Necesita el id del hotel'});
+	Hotel.findById({_id: idHotel}, (err, hotelEncontrado)=>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar Hotel'});
+		if(!hotelEncontrado) return res.status(500).send({ mensaje: 'Error la busacar id Hotel'});
+		return res.status(200).send({Hotel: hotelEncontrado});
+	});
+
+
+}
 
 module.exports = {
 	creaHotel,
 	editarHotel,
-	eliminarHotel
+	eliminarHotel,
+	verHoteles,
+	verHotelesId
 };
