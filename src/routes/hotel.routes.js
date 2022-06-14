@@ -11,5 +11,5 @@ const api = express.Router();
 // Rutas
 api.post('/RegistrarHotel', md_autenticacion.Auth, hotelController.creaHotel);
 api.put('/editarHotel/:idHotel' ,[md_autenticacion.Auth, upload.single('image')] , hotelController.editarHotel);
-
+api.delete('/eliminarHotel/:idHotel', md_autenticacion.Auth ,hotelController.eliminarHotel);
 module.exports = api;
