@@ -9,6 +9,8 @@ const md_roles = require('../middlewares/roles');
 //Rutas aqui
 
 api.post('/registrarHabitacion/:idHotel', [md_autenticacion.Auth, md_roles.verHotelAdmin, upload.single('image')], habitacionController.registrarHabitacion);
+api.get('/verHabitaciones/:idHotel', md_autenticacion.Auth, habitacionController.verHabitaciones);
+api.get('/verHabitacionId/:idHabitacion', [md_autenticacion.Auth, md_roles.verHotelAdmin], habitacionController.verHabitacioId);
 
 
 module.exports = api;
