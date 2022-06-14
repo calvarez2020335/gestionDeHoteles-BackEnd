@@ -14,7 +14,7 @@ function creaHotel(req, res) {
 				if (err) return res.status(500).send({ mensaje: 'Error en la peticion' });
 				if (!adminEncontrado) return res.status(500).send({ mensaje: 'No Se Encontro al Dueno' });
 				console.log(adminEncontrado);
-				Hotel.find({Nombre: { $regex: parametro.Nombre, $options: 'i' },adminHotel: adminEncontrado._id ,},
+				Hotel.find({Nombre: { $regex: parametro.nombre, $options: 'i' },adminHotel: adminEncontrado._id ,},
 					(err, hotelEncontrado) => {				
 						if (hotelEncontrado.length > 0)
 							return res.status(500).send({ mensaje: 'Este Hotel ya a sido creado' });
