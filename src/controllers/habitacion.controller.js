@@ -72,8 +72,44 @@ function verHabitacioId(req, res) {
 
 }
 
+function editarHabitacion(req, res) {
+	const idHabitacion = req.params.idHabitacion;
+	const parametro = req.body;
+	if(parametro.Precio <=0) return res.status(500).send({mensaje: 'Precio invalido'});
+	Habitacion.findOne({_id: idHabitacion, usuario: req.user.sub}, (err, habitacionEncontrada) => {
+		if(err) return res.status(404).send({mensaje: 'Error en la peticion de buscar habitacion'});
+		if(!habitacionEncontrada) return res.status(404).send({mensaje: 'No puede editar habitaciones que no le pertenezcan'});
+		
+		Habitacion.findByIdAndUpdate(idHabitacion, {$set:{ numHabitacion: parametro.numHabitacion, tipoHabitacion: parametro.tipoHabitacion, Precio:parametro.Precio}}, {new:true}, (err, habitacionActualizada)=>{
+			if(err) return res.status(404).send({mensaje: 'Error en la peticion de editar habitacion'});
+			if(!habitacionActualizada) return res.status(500).send({mensaje: 'Error al editar habitacion'});
+			return res.status(200).send({habitacionEditada: habitacionActualizada});
+		});
+
+	});
+
+}
+
+function eliminarHabitacion(req, res){
+	const idHabitacion = req.params.idHabitacion;
+	Habitacion.findOne({_id: idHabitacion, usuario: req.user.sub}, (err, habitacionEncontrada) => {
+		if(err) return res.status(404).send({mensaje: 'Error en la peticion de buscar habitacion'});
+		if(!habitacionEncontrada) return res.status(404).send({mensaje: 'No puede editar habitaciones que no le pertenezcan'});
+		
+		Habitacion.findByIdAndDelete({_id: idHabitacion}, (err, habitacionEliminar) => {
+			if(err) return res.status(404).send({mensaje: 'Error en la peticion de eliminar habitacion'});
+			if(!habitacionEliminar) return res.status(404).send({ mensaje: 'Error al eliminar habitacion'});
+			return res.status(200).send({habitacionEliminada: habitacionEliminar});
+		});
+
+	});
+
+}
+
 module.exports = {
 	registrarHabitacion,
 	verHabitaciones,
-	verHabitacioId
+	verHabitacioId,
+	editarHabitacion,
+	eliminarHabitacion
 };
