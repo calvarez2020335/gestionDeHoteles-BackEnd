@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ReservacionSchema = Schema({
-	NombreReservacion: String,
+	CorreoReservacion: String,
 	FechaEntrada: Date,
 	FechaSalida: Date,
 	habitacion:  { type: Schema.Types.ObjectId, ref: 'Habitaciones' },
