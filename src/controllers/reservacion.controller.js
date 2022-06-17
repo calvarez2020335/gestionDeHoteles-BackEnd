@@ -22,18 +22,18 @@ function crearReservacion(req, res) {
 			// let suma = hoy.getTime() + fechaEnMilisegundos; //getTime devuelve milisegundos de esa fecha
 			// let diasReservacion = new Date(suma);
 			let hoy = new Date();
-			let semanaEnMilisegundos = 1000 * 60 * 60 * 24 * 7;
+			let semanaEnMilisegundos = 1000 * 60 * 60 * 24 * dias;
 			let suma = hoy.getTime() + semanaEnMilisegundos; //getTime devuelve milisegundos de esa fecha
 			let fechaDentroDeUnaSemana = new Date(suma);
 
-			console.log(hoy);
-			console.log(fechaDentroDeUnaSemana);
+			console.log(hoy.toLocaleDateString());
+			console.log(fechaDentroDeUnaSemana.toLocaleDateString());
 
 			ReservacionModelo.CorreoReservacion = req.user.email;
-			ReservacionModelo.FechaEntrada = hoy;
+			ReservacionModelo.FechaEntrada = hoy.toLocaleDateString();
 		
 
-			ReservacionModelo.FechaSalida = fechaDentroDeUnaSemana;
+			ReservacionModelo.FechaSalida = fechaDentroDeUnaSemana.toLocaleDateString();
 
 			ReservacionModelo.habitacion = idHabitacion;
 			ReservacionModelo.usuario = req.user.sub;
@@ -73,6 +73,6 @@ function crearReservacion(req, res) {
 
 
 module.exports = {
-	crearReservacion
+	crearReservacion,
 
 };
