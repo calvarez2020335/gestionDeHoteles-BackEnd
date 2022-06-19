@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const FacturaSchema = Schema({
 	numero: String,
-	gastos: { type: Schema.Types.ObjectId, ref: 'Gastos' },
+	gastos: { type: Schema.Types.ObjectId, ref: 'GastosServicios' },
 	Subtotal:Number,
 	total:Number,
 	Usuarios: { type: Schema.Types.ObjectId, ref: 'Usuarios' }
