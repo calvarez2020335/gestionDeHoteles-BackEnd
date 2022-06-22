@@ -1,6 +1,7 @@
 const Reservacion = require('../models/reservacion.model');
 const Habitacion = require('../models/habitacion.model');
 const diasHabitacion = require('../models/diasHabitacion');
+const usuariosSubcritos = require('../models/usuariosSubcritos.model');
 // const Hotel = require('../models/hotel.model');
 // const Usuario = require('../models/usuario.model');
 
@@ -8,6 +9,7 @@ function crearReservacion(req, res) {
 	var parametro = req.body;
 	var ReservacionModelo = new Reservacion();
 	var DiasHabitacionModelo = new diasHabitacion();
+	var usuarioSubModelo = new usuariosSubcritos();
 	const idHabitacion = req.params.idHabitacion;
 
 	if (parametro.fechaentrada){
@@ -16,11 +18,7 @@ function crearReservacion(req, res) {
 			if(!habitacionEncontrada) return res.status(500).send({ mensaje: 'No Se Encontro habitacion'});
 			if( habitacionEncontrada.diponibilidad.toString() == 'false') return res.status(500).send({ mensaje: 'No puede reservar esta habitación'});
 			let dias = parseInt(parametro.fechaentrada);
-			// let hoy = new Date();
-		
-			// let fechaEnMilisegundos = 1000 * 60 * 60 * 24 * dias;
-			// let suma = hoy.getTime() + fechaEnMilisegundos; //getTime devuelve milisegundos de esa fecha
-			// let diasReservacion = new Date(suma);
+
 			let hoy = new Date();
 			let semanaEnMilisegundos = 1000 * 60 * 60 * 24 * dias;
 			let suma = hoy.getTime() + semanaEnMilisegundos; //getTime devuelve milisegundos de esa fecha
@@ -50,15 +48,32 @@ function crearReservacion(req, res) {
 				DiasHabitacionModelo.Usuario = req.user.sub;
 
 
+
+
 				DiasHabitacionModelo.save((err, diasHabitacionGuardado)=>{
 					if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
 					if (!diasHabitacionGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
 				
-					ReservacionModelo.save((err, reservacionGuardada) =>{
-						if (err) return res.status(500).send({ mensaje: 'Error en la peticion de reservacion' });
-						if (!reservacionGuardada) return res.status(500).send({ mensaje: 'Error al agregar una reservacion' });
-						return res.status(200).send({ ReservacionTotal: reservacionGuardada , diasHabitacionGuardado, habitacionActualizada});
+
+					usuarioSubModelo.usuario = req.user.sub;
+					usuarioSubModelo.hotel = habitacionEncontrada.hotel;
+
+					usuarioSubModelo.save((err, usuariosSubGuardado) =>{
+						if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
+						if (!usuariosSubGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
+						
+						
+						ReservacionModelo.save((err, reservacionGuardada) =>{
+							if (err) return res.status(500).send({ mensaje: 'Error en la peticion de reservacion' });
+							if (!reservacionGuardada) return res.status(500).send({ mensaje: 'Error al agregar una reservacion' });
+							return res.status(200).send({ ReservacionTotal: reservacionGuardada , diasHabitacionGuardado, habitacionActualizada, usuariosSubGuardado});
+						});
+
 					});
+	
+					
+
+	
 
 				});
         
@@ -66,6 +81,9 @@ function crearReservacion(req, res) {
 
 		});
 
+	} else {
+
+		return res.status(500).send({ mensaje: 'debes mandar parametros oligatorios ' });
 	}
 
 }
