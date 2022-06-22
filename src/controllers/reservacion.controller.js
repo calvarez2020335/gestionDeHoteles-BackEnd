@@ -80,7 +80,7 @@ function CancelarResevacion(req , res) {
 		if(err) return res.status(500).send({ mensaje: 'Error en la petición de cancelar'});
 		if(!ReservacionCancelada) return res.status(500).send({ mensaje: 'Solo u'});
 		
-		Habitacion.findByIdAndUpdate({_id:ReservacionCancelada.habitacion}, {$set:{ diponibilidad: 'true'}} ,(err, habitacionActualizada) =>{
+		Habitacion.findByIdAndUpdate({_id:ReservacionCancelada.habitacion}, {$set:{ diponibilidad: 'true'}} ,{new: true},(err, habitacionActualizada) =>{
 			if(err) return res.status(500).send({ mensaje: 'Error en la petición de actualizar habitacion'});
 			
 			console.log('habitacionActualizada:' + habitacionActualizada);
