@@ -13,76 +13,59 @@ function crearReservacion(req, res) {
 	const idHabitacion = req.params.idHabitacion;
 
 	if (parametro.fechaentrada){
-		Habitacion.findById( idHabitacion ,(err, habitacionEncontrada) =>{
-			if(err) return res.status(500).send({ mensaje: 'Error en la peticion de buscar habitacion-reservacion' });
-			if(!habitacionEncontrada) return res.status(500).send({ mensaje: 'No Se Encontro habitacion'});
-			if( habitacionEncontrada.diponibilidad.toString() == 'false') return res.status(500).send({ mensaje: 'No puede reservar esta habitación'});
-			let dias = parseInt(parametro.fechaentrada);
+		Reservacion.find({usuario: req.user.sub}, (err, usuarioEncontrado)=>{
+			if(err) return res.status(404).send({mensaje: 'Error en la petición de solicitar reservación'});
+			if(usuarioEncontrado.length > 0) return res.status(500).send({mensaje: 'Solo puede reservar una habitación'});
 
-			let hoy = new Date();
-			let semanaEnMilisegundos = 1000 * 60 * 60 * 24 * dias;
-			let suma = hoy.getTime() + semanaEnMilisegundos; //getTime devuelve milisegundos de esa fecha
-			let fechaDentroDeUnaSemana = new Date(suma);
-
-			console.log(hoy.toLocaleDateString());
-			console.log(fechaDentroDeUnaSemana.toLocaleDateString());
-
-			ReservacionModelo.CorreoReservacion = req.user.email;
-			ReservacionModelo.FechaEntrada = hoy.toLocaleDateString();
-		
-
-			ReservacionModelo.FechaSalida = fechaDentroDeUnaSemana.toLocaleDateString();
-
-			ReservacionModelo.habitacion = idHabitacion;
-			ReservacionModelo.usuario = req.user.sub;
-			ReservacionModelo.hotel = habitacionEncontrada.hotel;
-			Habitacion.findByIdAndUpdate(idHabitacion, {$set:{ diponibilidad: 'false'}}, {new:true}, (err, habitacionActualizada)=>{
-				if(err) return res.status(404).send({mensaje: 'Error en la peticion de editar habitacion'});
-				if(!habitacionActualizada) return res.status(500).send({mensaje: 'Error al editar habitacion'});
-			
-
-				DiasHabitacionModelo.dias = dias;
-				DiasHabitacionModelo.PrecioHabitacion = habitacionEncontrada.Precio;
-				DiasHabitacionModelo.Total = dias *  parseInt(habitacionEncontrada.Precio);
-				DiasHabitacionModelo.habitacion = idHabitacion;
-				DiasHabitacionModelo.Usuario = req.user.sub;
-
-
-
-
-				DiasHabitacionModelo.save((err, diasHabitacionGuardado)=>{
-					if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
-					if (!diasHabitacionGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
+			Habitacion.findById( idHabitacion ,(err, habitacionEncontrada) =>{
+				if(err) return res.status(500).send({ mensaje: 'Error en la peticion de buscar habitacion-reservacion' });
+				if(!habitacionEncontrada) return res.status(500).send({ mensaje: 'No Se Encontro habitacion'});
+				if( habitacionEncontrada.diponibilidad.toString() == 'false') return res.status(500).send({ mensaje: 'No puede reservar esta habitación'});
+				let dias = parseInt(parametro.fechaentrada);
+	
+				let hoy = new Date();
+				let semanaEnMilisegundos = 1000 * 60 * 60 * 24 * dias;
+				let suma = hoy.getTime() + semanaEnMilisegundos; //getTime devuelve milisegundos de esa fecha
+				let fechaDentroDeUnaSemana = new Date(suma);
+	
+				ReservacionModelo.CorreoReservacion = req.user.email;
+				ReservacionModelo.FechaEntrada = hoy.toLocaleDateString();
+				ReservacionModelo.FechaSalida = fechaDentroDeUnaSemana.toLocaleDateString();
+				ReservacionModelo.habitacion = idHabitacion;
+				ReservacionModelo.usuario = req.user.sub;
+				ReservacionModelo.hotel = habitacionEncontrada.hotel;
+				Habitacion.findByIdAndUpdate(idHabitacion, {$set:{ diponibilidad: 'false'}}, {new:true}, (err, habitacionActualizada)=>{
+					if(err) return res.status(404).send({mensaje: 'Error en la peticion de editar habitacion'});
+					if(!habitacionActualizada) return res.status(500).send({mensaje: 'Error al editar habitacion'});
 				
-
-					usuarioSubModelo.usuario = req.user.sub;
-					usuarioSubModelo.hotel = habitacionEncontrada.hotel;
-
-					usuarioSubModelo.save((err, usuariosSubGuardado) =>{
+					DiasHabitacionModelo.dias = dias;
+					DiasHabitacionModelo.PrecioHabitacion = habitacionEncontrada.Precio;
+					DiasHabitacionModelo.Total = dias *  parseInt(habitacionEncontrada.Precio);
+					DiasHabitacionModelo.habitacion = idHabitacion;
+					DiasHabitacionModelo.Usuario = req.user.sub;
+	
+					DiasHabitacionModelo.save((err, diasHabitacionGuardado)=>{
 						if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
-						if (!usuariosSubGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
-						
-						
-						ReservacionModelo.save((err, reservacionGuardada) =>{
-							if (err) return res.status(500).send({ mensaje: 'Error en la peticion de reservacion' });
-							if (!reservacionGuardada) return res.status(500).send({ mensaje: 'Error al agregar una reservacion' });
-							return res.status(200).send({ ReservacionTotal: reservacionGuardada , diasHabitacionGuardado, habitacionActualizada, usuariosSubGuardado});
-						});
-
-					});
-	
+						if (!diasHabitacionGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
 					
+						usuarioSubModelo.usuario = req.user.sub;
+						usuarioSubModelo.hotel = habitacionEncontrada.hotel;
 
-	
-
+						usuarioSubModelo.save((err, usuariosSubGuardado) =>{
+							if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
+							if (!usuariosSubGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
+		
+							ReservacionModelo.save((err, reservacionGuardada) =>{
+								if (err) return res.status(500).send({ mensaje: 'Error en la peticion de reservacion' });
+								if (!reservacionGuardada) return res.status(500).send({ mensaje: 'Error al agregar una reservacion' });
+								return res.status(200).send({ ReservacionTotal: reservacionGuardada , diasHabitacionGuardado, habitacionActualizada, usuariosSubGuardado});
+							});
+						});
+					});
 				});
-        
 			});
-
 		});
-
 	} else {
-
 		return res.status(500).send({ mensaje: 'debes mandar parametros oligatorios ' });
 	}
 
@@ -90,7 +73,29 @@ function crearReservacion(req, res) {
 
 
 
+function CancelarResevacion(req , res) {
+	var idReservacion = req.params.idReser;
+	
+	Reservacion.findOneAndDelete({_id: idReservacion, usuario: req.user.sub}, (err, ReservacionCancelada)=>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la petición de cancelar'});
+		if(!ReservacionCancelada) return res.status(500).send({ mensaje: 'Solo u'});
+		
+		Habitacion.findByIdAndUpdate({_id:ReservacionCancelada.habitacion}, {$set:{ diponibilidad: 'true'}} ,{new: true},(err, habitacionActualizada) =>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de actualizar habitacion'});
+			
+			console.log('habitacionActualizada:' + habitacionActualizada);
+			
+			return res.status(200).send({habitacionActualizada: habitacionActualizada});
+		});
+
+	});
+
+	
+}
+
+
 module.exports = {
 	crearReservacion,
+	CancelarResevacion
 
 };
