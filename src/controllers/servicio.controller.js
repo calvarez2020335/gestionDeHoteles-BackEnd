@@ -41,13 +41,13 @@ function registrarServicio(req, res) {
 function verServicios(req, res) {
 	const idHotel = req.params.idHotel;
 
-	if(req.user.rol = 'ROL_ADMINHOTEL'){
+	if(req.user.rol === 'ROL_ADMINHOTEL'){
 		Servicio.find({hotel: idHotel, Usuario: req.user.sub}, (err, serviciosEncontrados)=>{
 			if(err) return res.status(500).send({mensaje: 'Error en la peticion de buscar servicios'});
 			if(!serviciosEncontrados) return res.status(500).send({mensaje: 'No puede ver los servicios de otro hotel'});
 			return res.status(200).send({Servicios: serviciosEncontrados});
 		});
-	}if (req.user.rol = 'ROL_USUARIO') {
+	}else if(req.user.rol === 'ROL_USUARIO') {
 		Servicio.find({hotel: idHotel}, (err, serviciosEncontrados) => {
 			if(err) return res.status(404).send({mensaje: 'Error en la peticion de buscar servicios'});
 			if(!serviciosEncontrados) return res.status(404).send({mensaje: 'Error al ver los servicios del hotel'});
@@ -59,6 +59,63 @@ function verServicios(req, res) {
 
 }
 
+function verServiciosId(req, res) {
+	const idServicio = req.params.idServicio;
+	if(req.user.rol == 'ROL_ADMINHOTEL'){
+
+		Servicio.findOne({_id: idServicio, Usuario: req.user.sub}, (err, serviciosEncontrados)=>{
+			if(err) return res.status(500).send({mensaje: 'Error en la peticion de buscar servicios'});
+			if(!serviciosEncontrados) return res.status(500).send({mensaje: 'No puede ver los servicios de otro hotel'});
+			return res.status(200).send({Servicios: serviciosEncontrados});
+		});
+
+	}else if(req.user.rol == 'ROL_USUARIO') {
+		Servicio.find({_id: idServicio}, (err, serviciosEncontrados) => {
+			if(err) return res.status(404).send({mensaje: 'Error en la peticion de buscar servicios'});
+			if(!serviciosEncontrados) return res.status(404).send({mensaje: 'Error al ver los servicios del hotel'});
+			return res.status(200).send({Servicios: serviciosEncontrados});
+		});
+	} else {
+		return res.status(500).send({ mensaje: 'No tiene acceso a este recurso'});
+	}
+
+}
+
+//Solo AdminHotel
+function editarServicio(req, res) {
+	const idServicio = req.params.idServicio;
+	const parametro = req.body;
+
+	Servicio.findOneAndUpdate({_id: idServicio, Usuario: req.user.sub}, {$set:{servicio: parametro.servicio, descripcion: parametro.descripcion, Precio: parametro.Precio}}, {new: true}, (err, servicioActualizado)=>{
+		if(err) return res.status(500).send({mensaje: 'Error en la peticion de editas servicios'});
+		if(!servicioActualizado) return res.status(500).send({ mensaje: 'No puede editar eventos que no le pertenezcan'});
+		return res.status(200).send({servicioActualizado: servicioActualizado});
+	});
+
+}
+
+//Solo adminHotel
+function eliminarServicio(req, res){
+	const idServicio = req.params.idServicio;
+
+	Servicio.findOneAndDelete({_id: idServicio, Usuario: req.user.sub}, (err, servicioEliminado)=>{
+		if(err) return res.status(500).send({mensaje: 'Error en la peticion de eliminar eventos'});
+		if(!servicioEliminado) return res.status(500).send({mensaje: 'No puede eliminar eventos que no le pertenezcan'});
+
+		return res.status(200).send({servicioElimando: servicioEliminado});
+	});
+}
+
+//Solo usuario solicitar servicio-habitacion
+function servicioHabitacion(req, res) {
+	req, res;
+}
+
 module.exports= {
-	registrarServicio
+	registrarServicio,
+	verServicios,
+	verServiciosId,
+	editarServicio,
+	eliminarServicio,
+	servicioHabitacion
 };
