@@ -2,6 +2,7 @@ const Reservacion = require('../models/reservacion.model');
 const Habitacion = require('../models/habitacion.model');
 const diasHabitacion = require('../models/diasHabitacion');
 const usuariosSubcritos = require('../models/usuariosSubcritos.model');
+const Factura = require('../models/factura.model');
 // const Hotel = require('../models/hotel.model');
 // const Usuario = require('../models/usuario.model');
 
@@ -10,6 +11,7 @@ function crearReservacion(req, res) {
 	var ReservacionModelo = new Reservacion();
 	var DiasHabitacionModelo = new diasHabitacion();
 	var usuarioSubModelo = new usuariosSubcritos();
+	var facturaModelo = new Factura();
 	const idHabitacion = req.params.idHabitacion;
 
 	if (parametro.fechaentrada){
@@ -55,11 +57,23 @@ function crearReservacion(req, res) {
 							if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
 							if (!usuariosSubGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
 		
-							ReservacionModelo.save((err, reservacionGuardada) =>{
-								if (err) return res.status(500).send({ mensaje: 'Error en la peticion de reservacion' });
-								if (!reservacionGuardada) return res.status(500).send({ mensaje: 'Error al agregar una reservacion' });
-								return res.status(200).send({ ReservacionTotal: reservacionGuardada , diasHabitacionGuardado, habitacionActualizada, usuariosSubGuardado});
+							facturaModelo.Usuario = req.user.sub;
+							facturaModelo.servicios = [];
+							facturaModelo.Subtotal = 0;
+							facturaModelo.total = 0;
+
+							facturaModelo.save((err, facturaGuardada) =>{
+								if (err) return res.status(500).send({ mensaje: 'Error en la peticion de facturaGuardada' });
+								if (!facturaGuardada) return res.status(500).send({ mensaje: 'Error al agregar una factura' });
+
+								ReservacionModelo.save((err, reservacionGuardada) =>{
+									if (err) return res.status(500).send({ mensaje: 'Error en la peticion de reservacion' });
+									if (!reservacionGuardada) return res.status(500).send({ mensaje: 'Error al agregar una reservacion' });
+									return res.status(200).send({ ReservacionTotal: reservacionGuardada , diasHabitacionGuardado, habitacionActualizada, usuariosSubGuardado, facturaGuardada});
+								});
 							});
+							
+				
 						});
 					});
 				});
