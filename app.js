@@ -9,6 +9,7 @@ const EventoRutas = require('./src/routes/evento.routes');
 const HabitacionRutas = require('./src/routes/habitacion.routes');
 const ReservacionRutas = require('./src/routes/reservacion.routes');
 const ServiciosRutas = require('./src/routes/servicio.routes');
+const FacturasRutas = require('./src/routes/factura.routes');
 // MIDDLEWARES
 app.use(express.urlencoded({ extended: false}));
 app.use(express.json());
@@ -20,6 +21,6 @@ app.use('/public', express.static(`${__dirname}/storage/imgs`));
 app.use(cors());
 
 // CARGA DE RUTAS localhost:3000/api/productos
-app.use('/api' , UsuarioRutas,HotelRutas,EventoRutas,HabitacionRutas, ReservacionRutas, ServiciosRutas);
+app.use('/api' , UsuarioRutas,HotelRutas,EventoRutas,HabitacionRutas, ReservacionRutas, ServiciosRutas , FacturasRutas);
 
 module.exports = app;

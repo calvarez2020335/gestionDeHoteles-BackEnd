@@ -126,6 +126,7 @@ function servicioHabitacion(req, res) {
 			if(!servicioEncontrado) return res.status(500).send({mensaje: 'Error al buscar servicios'});	
 			gastosModel.Servicios = servicioEncontrado._id;
 			gastosModel.Habitacion = reservacionEncontrada.habitacion;
+			gastosModel.NombreSer = servicioEncontrado.servicio;
 			gastosModel.Precio = servicioEncontrado.Precio;
 			gastosModel.Usuario = idUsuario;	
 			gastosModel.save((err, servicioPedido) => {

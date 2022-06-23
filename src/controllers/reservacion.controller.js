@@ -89,22 +89,15 @@ function crearReservacion(req, res) {
 
 function CancelarResevacion(req , res) {
 	var idReservacion = req.params.idReser;
-	
 	Reservacion.findOneAndDelete({_id: idReservacion, usuario: req.user.sub}, (err, ReservacionCancelada)=>{
 		if(err) return res.status(500).send({ mensaje: 'Error en la petición de cancelar'});
 		if(!ReservacionCancelada) return res.status(500).send({ mensaje: 'Solo u'});
-		
 		Habitacion.findByIdAndUpdate({_id:ReservacionCancelada.habitacion}, {$set:{ diponibilidad: 'true'}} ,{new: true},(err, habitacionActualizada) =>{
 			if(err) return res.status(500).send({ mensaje: 'Error en la petición de actualizar habitacion'});
-			
 			console.log('habitacionActualizada:' + habitacionActualizada);
-			
 			return res.status(200).send({habitacionActualizada: habitacionActualizada});
 		});
-
 	});
-
-	
 }
 
 
