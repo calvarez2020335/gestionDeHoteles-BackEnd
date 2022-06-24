@@ -44,6 +44,7 @@ function crearReservacion(req, res) {
 					DiasHabitacionModelo.PrecioHabitacion = habitacionEncontrada.Precio;
 					DiasHabitacionModelo.Total = dias *  parseInt(habitacionEncontrada.Precio);
 					DiasHabitacionModelo.habitacion = idHabitacion;
+					DiasHabitacionModelo.numHabitacion = habitacionEncontrada.numHabitacion;
 					DiasHabitacionModelo.Usuario = req.user.sub;
 	
 					DiasHabitacionModelo.save((err, diasHabitacionGuardado)=>{
@@ -61,6 +62,7 @@ function crearReservacion(req, res) {
 							facturaModelo.servicios = [];
 							facturaModelo.Subtotal = 0;
 							facturaModelo.total = 0;
+							facturaModelo.hotelHospedado = habitacionEncontrada.hotel;
 
 							facturaModelo.save((err, facturaGuardada) =>{
 								if (err) return res.status(500).send({ mensaje: 'Error en la peticion de facturaGuardada' });
