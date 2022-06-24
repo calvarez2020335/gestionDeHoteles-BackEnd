@@ -9,7 +9,7 @@ const FacturaSchema = Schema({
 	}],
 	Subtotal:Number,
 	total:Number,
-
+	hotelHospedado: {type: Schema.Types.ObjectId, ref: 'Hoteles'}
 });
 
 module.exports = mongoose.model('Facturas', FacturaSchema);
