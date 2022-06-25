@@ -1,6 +1,6 @@
 const Reservacion = require('../models/reservacion.model');
 const Habitacion = require('../models/habitacion.model');
-const diasHabitacion = require('../models/diasHabitacion');
+const diasHabitacion = require('../models/diasHabitacion.model');
 const usuariosSubcritos = require('../models/usuariosSubcritos.model');
 const Factura = require('../models/factura.model');
 // const Hotel = require('../models/hotel.model');

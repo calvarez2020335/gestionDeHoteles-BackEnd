@@ -1,14 +1,15 @@
 const Factura = require('../models/factura.model');
 const Usuario = require('../models/usuario.model');
-const diasHabitacion = require('../models/diasHabitacion');
+const DiasHabitacion = require('../models/diasHabitacion.model');
+const Habitacion = require('../models/habitacion.model');
 const Hotel = require('../models/hotel.model');
 const UsuariosSubcrito = require('../models/usuariosSubcritos.model');
 const GastosServicios = require('../models/gastosServicios.model');
+const Reservacion = require('../models/reservacion.model');
 const PdfkitConstruct = require('pdfkit-construct');
 
 function confirmarFactura (req , res) {
 	var idFactura = req.params.idFactu;
-
 
 	Factura.findOne( {_id: idFactura}, (err, facturaEncotrada) =>{
 		if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar factura' });
@@ -23,7 +24,7 @@ function confirmarFactura (req , res) {
 				if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar servicios solicitados' });
 				if (!gastoEncontrado) return res.status(500).send({ mensaje: 'error al buscar servicios solicitaodos' });
 
-				diasHabitacion.findOne({Usuario: facturaEncotrada.Usuario}, (err, diasHabitacion)=>{
+				DiasHabitacion.findOne({Usuario: facturaEncotrada.Usuario}, (err, diasHabitacion)=>{
 
 					if(err) return res.status(500).send({ mensaje: 'Error al buscar habitacion precio reserva'});
 					if(!diasHabitacion) return res.status(500).send({ mensaje: 'Error al buscar habitacion precio reserva x2'});
@@ -57,12 +58,7 @@ function confirmarFactura (req , res) {
 						console.log(facturaActualzada);
 					});
 					console.log(totallocal);
-  
-
-
 					return	res.status(200).send({ gastoEncontrado:  gastoEncontrado});
-
-		
 				});
 
 			});
@@ -71,13 +67,9 @@ function confirmarFactura (req , res) {
 
 	});
 
-
-    
-
 }
 
-
-function prueba(req, res) {
+function pdf(req, res) {
 	const idFactura = req.params.idFactura;
 	var hoy = new Date();
 	var fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
@@ -85,31 +77,26 @@ function prueba(req, res) {
 	var fechaYHora = fecha + ' ' + hora;
 	
 	Factura.findOne( {_id: idFactura}, (err, facturaEncotrada) =>{
-		if (err) return res.status(500).send({ mensaje: 'error en la peticion del eliminar el carrito' });
-		if (!facturaEncotrada) return res.status(500).send({ mensaje: 'error al eliminar el producto al carrito' });
+		if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar factura' });
+		if (!facturaEncotrada) return res.status(500).send({ mensaje: 'error al buscar factura' });
 	
 		UsuariosSubcrito.findOne( {usuario: facturaEncotrada.Usuario}, (err, UsuariosSubcritoEncontrado) =>{
-			if (err) return res.status(500).send({ mensaje: 'error en la peticion del eliminar el carrito' });
-			if (!UsuariosSubcritoEncontrado) return res.status(500).send({ mensaje: 'error al eliminar el producto al carrito' }); 
-
-				
+			if (err) return res.status(500).send({ mensaje: 'error en la peticion del buscarUsarioSubscrito' });
+			if (!UsuariosSubcritoEncontrado) return res.status(500).send({ mensaje: 'error al buscarUsarioSubscrito' }); 
+	
 			Hotel.findOne({_id : UsuariosSubcritoEncontrado.hotel } , (err, HotelEncotrado) =>{
-				if (err) return res.status(500).send({ mensaje: 'error en la peticion del eliminar el carrito' });
-				if (!HotelEncotrado) return res.status(500).send({ mensaje: 'error al eliminar el producto al carrito' }); 
+				if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar hotel' });
+				if (!HotelEncotrado) return res.status(500).send({ mensaje: 'error al buscar hotel' }); 
 	
 				Usuario.findOne({_id: UsuariosSubcritoEncontrado.usuario} , (err, usuarioEncontrado) =>{
-					if (err) return res.status(500).send({ mensaje: 'error en la peticion del eliminar el carrito' });
-					if (!usuarioEncontrado) return res.status(500).send({ mensaje: 'error al eliminar el producto al carrito' }); 
+					if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar usuario' });
+					if (!usuarioEncontrado) return res.status(500).send({ mensaje: 'error al buscar usuario' }); 
 					
-					diasHabitacion.find({Usuario: facturaEncotrada.Usuario}, (err, diasHabitacion)=>{
-
-						if(err) return res.status(500).send({ mensaje: 'Error al buscar habitacion precio reserva'});
-						if(!diasHabitacion) return res.status(500).send({ mensaje: 'Error al buscar habitacion precio reserva x2'});
+					DiasHabitacion.find({Usuario: facturaEncotrada.Usuario}, (err, diasHabitacion)=>{
+						if(err) return res.status(500).send({ mensaje: 'Error en la peticion de buscar habitacion precio reserva'});
+						if(!diasHabitacion) return res.status(500).send({ mensaje: 'Error al buscar habitacion precio reserva'});
 						
-					
-
-
-
+						///////////////////////////////////////GENERAR PDF////////////////////////////////////////////////
 						let count = 1;
 						const registros = facturaEncotrada.servicios.map((prueba) => {
 							const registro = {
@@ -119,16 +106,11 @@ function prueba(req, res) {
 								precio: 'Q' +  prueba.precio +'.00' ,
 							};
 							count++;
-
 							return registro;
 						});
 
-
-
-
 						const habitaciones = diasHabitacion.map((prueba) => {
 							const habitacion = {
-	
 								// NumHabitacion: prueba.numHabitacion,
 								dias: prueba.dias,
 								precio: 'Q' + prueba.PrecioHabitacion + '.00',
@@ -137,7 +119,6 @@ function prueba(req, res) {
 							console.log(habitacion);
 							return habitacion;
 						});
-
 
 						// Create a document
 						const doc = new PdfkitConstruct({
@@ -148,23 +129,14 @@ function prueba(req, res) {
 
 						// set the header to render in every page
 						doc.setDocumentHeader({		
-							height: '20%',
-							// marginLeft: 45,
-							// marginRight: 45,
+							height: '20%'
 						}, () => {
-		
-							// doc.image('images/kumtatz_propuesta_3.3.jpeg', 450, 10, { scale: 0.10 });
-
-
 							doc.lineJoin('miter')
 								.rect(0, 0, doc.page.width, doc.header.options.heightNumber).fill('#155B98');
-
 							doc.image('images/kumtatz_propuesta_3.3.jpeg', 495, 0, {fit: [80, 80]})
 								.rect(495, 0, 80, 80)
 								.stroke()
 								.text('Fit', 495, 0);
-
-
 							doc.fill('#ffff')
 								.fontSize(20)
 								.text( `Hotel: ${HotelEncotrado.Nombre}`, doc.header.x, doc.header.y);
@@ -174,32 +146,23 @@ function prueba(req, res) {
 							doc.fill('#ffff')
 								.fontSize(15)
 								.text(`Email usuario: ${usuarioEncontrado.email}`, doc.header.x + 0 , doc.header.y + 60);
-					
 						});
-
 
 						doc.setDocumentFooter({
 							height: '20%',
 							marginLeft: 45,
 							marginRight: 45,
-			
 						}, () => {
 	
 							doc.lineJoin('miter')
 								.rect(0, doc.footer.y, doc.page.width, doc.footer.options.heightNumber).fill('#128AB0');
-	
 							doc.fill('#FFFFFF').fontSize(25).text(`Total: ${facturaEncotrada.total} Quetzales`, doc.footer.x + 110, doc.footer.y + 25, {
 								align: 'right',
-			
 							});
-
 							doc.fill('#FFFFFF').fontSize(15).text(`Emisión De Factura: ${fechaYHora}`, doc.footer.x, doc.footer.y + 131, {
 								align: 'center',
-		
 							});
-
 						});
-
 
 						doc.addTable(
 							[
@@ -218,8 +181,6 @@ function prueba(req, res) {
 								headAlign: 'center'
 							});
 
-						// ---------				NumHabitacion: prueba.numHabitacion,
-						
 						doc.addTable(
 							[
 								{key: 'dias', label: 'Dias Hospedados', align: 'center'},
@@ -237,18 +198,36 @@ function prueba(req, res) {
 								headAlign: 'center'
 							});
 						
-
-
 						// render tables
 						doc.render();
-
 						doc.pipe(res);
 						doc.end();
+						///////////////////////////////////////FIN GENERAR PDF////////////////////////////////////////////////
 
+						///////////////////////////////////////Actualizar Habitaciones////////////////////////////////////////
+						Habitacion.findOneAndUpdate({Usuario: usuarioEncontrado._id}, {$set:{ diponibilidad: 'true'}}, {new:true}, (err, habitacionActualizada)=>{
+							console.log(habitacionActualizada);
+						});
+						///////////////////////////////////////Fin Actualizar Habitaciones////////////////////////////////////
 
+						///////////////////////////////////////Eliminar datos innecesarios////////////////////////////////////////
+						GastosServicios.deleteMany({Usuario: usuarioEncontrado._id}, (err, gastosServicios)=>{
+							console.log(gastosServicios);
+						});
 
+						Reservacion.findOneAndDelete({usuario: usuarioEncontrado._id}, (err, reservacionDelete)=>{
+							console.log(reservacionDelete);
+						});
 
+						DiasHabitacion.findOneAndDelete({Usuario: usuarioEncontrado._id}, (err, diasDelete)=>{
+							console.log(diasDelete);
+						});
 
+						Factura.findByIdAndDelete(idFactura, (err, facturaEliminada)=>{
+							console.log(facturaEliminada);
+						});
+						
+						///////////////////////////////////////Fin Eliminar datos innecesarios////////////////////////////////////
 					});	
 				});
 			});
@@ -260,5 +239,5 @@ function prueba(req, res) {
 
 module.exports = {
 	confirmarFactura,
-	prueba
+	pdf
 };
