@@ -226,7 +226,7 @@ function pdf(req, res) {
 							console.log(HistorialRegistrado);
 						});
 						
-
+						///////////////////////////////////////fin de Insertar Historial////////////////////////////////////////////////
 			
 
 
@@ -249,7 +249,7 @@ function pdf(req, res) {
 						Factura.findByIdAndDelete(idFactura, (err, facturaEliminada)=>{
 							console.log('factura eliminada' +  facturaEliminada);
 
-							
+							///////////////////////////////////////actualizar Historial////////////////////////////////////////////////
 							for (let i = 0; i < facturaEliminada.servicios.length; i++) {
 	
 								Historial.findOneAndUpdate ({usuario: facturaEliminada.Usuario } , 
@@ -259,6 +259,7 @@ function pdf(req, res) {
 										console.log( 'historial' + HistrorialActualizado);
 									});
 							}
+							///////////////////////////////////////fin actualizar Historial////////////////////////////////////////////////
 						});
 						
 
