@@ -1,0 +1,1 @@
+const Historial = require('../models/historial.modelo');

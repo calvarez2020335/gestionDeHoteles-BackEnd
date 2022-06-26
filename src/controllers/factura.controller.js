@@ -6,7 +6,9 @@ const Hotel = require('../models/hotel.model');
 const UsuariosSubcrito = require('../models/usuariosSubcritos.model');
 const GastosServicios = require('../models/gastosServicios.model');
 const Reservacion = require('../models/reservacion.model');
+const Historial = require('../models/historial.modelo');
 const PdfkitConstruct = require('pdfkit-construct');
+
 
 function confirmarFactura (req , res) {
 	var idFactura = req.params.idFactu;
@@ -75,6 +77,9 @@ function pdf(req, res) {
 	var fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
 	var hora = hoy.getHours() + ':' + hoy.getMinutes() + ':' + hoy.getSeconds();
 	var fechaYHora = fecha + ' ' + hora;
+
+	const HistorialModelo = new Historial();
+
 	
 	Factura.findOne( {_id: idFactura}, (err, facturaEncotrada) =>{
 		if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar factura' });
@@ -106,6 +111,7 @@ function pdf(req, res) {
 								precio: 'Q' +  prueba.precio +'.00' ,
 							};
 							count++;
+							console.log(registro );
 							return registro;
 						});
 
@@ -208,6 +214,23 @@ function pdf(req, res) {
 						Habitacion.findOneAndUpdate({Usuario: usuarioEncontrado._id}, {$set:{ diponibilidad: 'true'}}, {new:true}, (err, habitacionActualizada)=>{
 							console.log(habitacionActualizada);
 						});
+
+						///////////////////////////////////////Insertar Historial////////////////////////////////////////////////
+
+						HistorialModelo.usuario =  facturaEncotrada.Usuario;
+						HistorialModelo.hotel = UsuariosSubcritoEncontrado.hotel;
+						HistorialModelo.NombreHotel = HotelEncotrado.Nombre;
+						HistorialModelo.servicios = [] ;
+
+						HistorialModelo.save((err, HistorialRegistrado)=>{
+							console.log(HistorialRegistrado);
+						});
+						
+						///////////////////////////////////////fin de Insertar Historial////////////////////////////////////////////////
+			
+
+
+
 						///////////////////////////////////////Fin Actualizar Habitaciones////////////////////////////////////
 
 						///////////////////////////////////////Eliminar datos innecesarios////////////////////////////////////////
@@ -224,9 +247,23 @@ function pdf(req, res) {
 						});
 
 						Factura.findByIdAndDelete(idFactura, (err, facturaEliminada)=>{
-							console.log(facturaEliminada);
+							console.log('factura eliminada' +  facturaEliminada);
+
+							///////////////////////////////////////actualizar Historial////////////////////////////////////////////////
+							for (let i = 0; i < facturaEliminada.servicios.length; i++) {
+	
+								Historial.findOneAndUpdate ({usuario: facturaEliminada.Usuario } , 
+									{$push: { servicios: { nombreServicios : facturaEliminada.servicios[i].nombreServicios}}} 
+									, {new: true} , (err, HistrorialActualizado) =>{
+
+										console.log( 'historial' + HistrorialActualizado);
+									});
+							}
+							///////////////////////////////////////fin actualizar Historial////////////////////////////////////////////////
 						});
 						
+
+
 						///////////////////////////////////////Fin Eliminar datos innecesarios////////////////////////////////////
 					});	
 				});
