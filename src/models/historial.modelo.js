@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 
 const HistorialSchema = Schema({
 	usuario: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
-	Habitacion: { type: Schema.Types.ObjectId, ref: 'Habitaciones'},
 	hotel: { type: Schema.Types.ObjectId, ref: 'Hoteles' },
+	NombreHotel: String,
 	servicios: [{
 		nombreServicios: String,
 		precio: Number,
