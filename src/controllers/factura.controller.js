@@ -71,6 +71,40 @@ function confirmarFactura (req , res) {
 
 }
 
+function VerFactura(req, res) {
+
+	const idHotel = req.params.idHotel;
+
+	Hotel.findOne( { _id: idHotel , adminHotel: req.user.sub  } , (err, hotelEncontrado) => {
+		if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar hotel admin'});
+		if( !hotelEncontrado) return res.status(500).send({ mensaje: 'este hotel no te pertenese'});
+	
+		
+		Factura.find({hotelHospedado : hotelEncontrado._id}, (err, VerFacturas) =>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar usuarios admin'});
+			if( !VerFacturas) return res.status(500).send({ mensaje: 'Error la busacar id admin'});
+	
+			return	res.status(200).send({ VerFacturas:  VerFacturas});
+	
+		});
+	});
+}
+
+function VerFacturaId (req, res){
+
+	const idFactu = req.params.idFactura;
+
+	Factura.find({_id : idFactu}, (err, VerFacturasId) =>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar factura admin'});
+		if( !VerFacturasId) return res.status(500).send({ mensaje: 'Error la busacar id factura'});
+
+		return	res.status(200).send({ VerFacturasID:  VerFacturasId});
+
+	});
+
+
+}
+
 function pdf(req, res) {
 	const idFactura = req.params.idFactura;
 	var hoy = new Date();
@@ -276,5 +310,7 @@ function pdf(req, res) {
 
 module.exports = {
 	confirmarFactura,
-	pdf
+	pdf,
+	VerFactura,
+	VerFacturaId
 };
