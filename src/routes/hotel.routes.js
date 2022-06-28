@@ -14,4 +14,5 @@ api.put('/editarHotel/:idHotel' ,[md_autenticacion.Auth, upload.single('image')]
 api.delete('/eliminarHotel/:idHotel', md_autenticacion.Auth ,hotelController.eliminarHotel);
 api.get('/verHoteles' ,hotelController.verHoteles );
 api.get('/verHotelesId/:idHotel' ,hotelController.verHotelesId );
+api.get('/verHoteleNombre' ,hotelController.verHoteleNombre);
 module.exports = api;

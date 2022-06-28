@@ -222,10 +222,22 @@ function verHotelesId(req, res){
 
 }
 
+function verHoteleNombre(req, res){
+	var parametro = req.body;
+
+	Hotel.find({Nombre:  {$regex: parametro.nombre, $options:'i'}}, (err, hotelEncontrado)=>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar Hotel'});
+		if(!hotelEncontrado) return res.status(500).send({ mensaje: 'no se encontrar hotel'});
+
+		return res.status(200).send({Hotel: hotelEncontrado});
+	});
+}
+
 module.exports = {
 	creaHotel,
 	editarHotel,
 	eliminarHotel,
 	verHoteles,
-	verHotelesId
+	verHotelesId,
+	verHoteleNombre
 };

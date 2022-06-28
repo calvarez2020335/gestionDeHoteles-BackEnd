@@ -7,7 +7,6 @@ const HistorialSchema = Schema({
 	NombreHotel: String,
 	servicios: [{
 		nombreServicios: String,
-		precio: Number,
 	}],
 });
 
