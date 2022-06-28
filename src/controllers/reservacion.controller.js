@@ -89,15 +89,28 @@ function crearReservacion(req, res) {
 
 
 
-function CancelarResevacion(req , res) {
-	var idReservacion = req.params.idReser;
-	Reservacion.findOneAndDelete({_id: idReservacion, usuario: req.user.sub}, (err, ReservacionCancelada)=>{
-		if(err) return res.status(500).send({ mensaje: 'Error en la petición de cancelar'});
-		if(!ReservacionCancelada) return res.status(500).send({ mensaje: 'Solo u'});
-		Habitacion.findByIdAndUpdate({_id:ReservacionCancelada.habitacion}, {$set:{ diponibilidad: 'true'}} ,{new: true},(err, habitacionActualizada) =>{
-			if(err) return res.status(500).send({ mensaje: 'Error en la petición de actualizar habitacion'});
-			console.log('habitacionActualizada:' + habitacionActualizada);
-			return res.status(200).send({habitacionActualizada: habitacionActualizada});
+function CancelarResevacion(req, res) {
+	const idUsuario = req.user.sub;
+
+	Reservacion.findOne({usuario: idUsuario}, (err, reservacionEncontrada) =>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la peticion de buscar-reservación-cancelar'});
+		if(!reservacionEncontrada) return res.status(500).send({ mensaje: 'No tiene reservaciones activas'});
+		diasHabitacion.findOne({Usuario: idUsuario}, (err, diasHabitacionEncontrada)=>{
+			let hoy = new Date();
+			const diaInicial = parseInt(reservacionEncontrada.FechaEntrada);
+			const fechaSalida = parseInt(hoy.toLocaleDateString());
+			const nuevoDiaSalida = fechaSalida - diaInicial;
+			const nuevoTotal = diasHabitacionEncontrada.PrecioHabitacion * nuevoDiaSalida;
+
+			Reservacion.findOneAndUpdate({usuario: idUsuario}, {FechaSalida: hoy.toLocaleDateString()}, {new:true}, (err, reservacionActualizada)=>{
+				if(err) return res.status(500).send({ mensaje: 'Error en la peticion de editar fechas de salida'});
+				if(!reservacionActualizada) return res.status(500).send({ mensaje: 'Error al editar fecha de salida'});
+				diasHabitacion.findOneAndUpdate({usuario: idUsuario}, {dias: nuevoDiaSalida, Total: nuevoTotal}, {new: true}, (err, diasActualizados)=>{
+					if(err) return res.status(500).send({ mensaje: 'Error en la peticion de editar dia de salida'});
+					if(!diasActualizados) return res.status(500).send({ mensaje: 'Error al editar dia de salida'});
+					return res.status(200).send({mensaje:diasActualizados, reservacionActualizada});
+				});
+			});
 		});
 	});
 }
