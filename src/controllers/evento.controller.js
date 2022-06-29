@@ -115,14 +115,14 @@ function eliminarEventos(req, res) {
 }
 
 function verEventos(req, res) {
+	const idHotel = req.params.idHotel;
 	if(req.user.rol == 'ROL_ADMINHOTEL'){
-		Evento.find({adminHotel: req.user.sub}, (err, eventoEncontrado) => {
+		Evento.find({adminHotel: req.user.sub, hotel: idHotel}, (err, eventoEncontrado) => {
 			if(err) return res.status(404).send({mensaje:'Error en al petición de ver los eventos' });
 			if(!eventoEncontrado) return res.status(404).send({mensaje: 'Error al ver los eventos'});
 			return res.status(200).send({eventos: eventoEncontrado});
 		});
 	}else{
-		const idHotel = req.params.idHotel;
 		if(idHotel == null) return res.status(500).send({mensaje:'Necesita el id del hotel'});
 		Evento.find({hotel: idHotel}, (err, eventoEncontrado) => {
 			if(err) return res.status(404).send({mensaje:'Error en al petición de ver los eventos' });
