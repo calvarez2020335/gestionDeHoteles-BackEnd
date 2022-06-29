@@ -201,8 +201,15 @@ function eliminarHotel(req, res) {
 }
 
 function verHoteles(req, res){
-
 	Hotel.find({}, (err, hotelEncontrado) => {
+		if(err) return res.status(500).send({ mensaje: 'Error en la petición de ver hoteles'});
+		if(!hotelEncontrado) return res.status(500).send({ mensaje: 'Error no se pudo encotrar hoteles'});
+		return res.status(200).send({ Hoteles: hotelEncontrado });
+	});
+}
+
+function verHotelesAdmin(req, res){
+	Hotel.find({adminHotel: req.user.sub}, (err, hotelEncontrado) => {
 		if(err) return res.status(500).send({ mensaje: 'Error en la petición de ver hoteles'});
 		if(!hotelEncontrado) return res.status(500).send({ mensaje: 'Error no se pudo encotrar hoteles'});
 		return res.status(200).send({ Hoteles: hotelEncontrado });
@@ -239,5 +246,6 @@ module.exports = {
 	eliminarHotel,
 	verHoteles,
 	verHotelesId,
-	verHoteleNombre
+	verHoteleNombre,
+	verHotelesAdmin
 };
