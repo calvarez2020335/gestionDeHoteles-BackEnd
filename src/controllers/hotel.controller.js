@@ -11,21 +11,21 @@ function creaHotel(req, res) {
 
 	if (req.user.rol == 'ROL_ADMIN') {
 		//admin 
-		if (parametro.nombre && parametro.descripcion && parametro.direccion && parametro.adminHotel) {
+		if (parametro.Nombre && parametro.Descripcion && parametro.Direccion && parametro.adminHotel) {
 
 
 			Usuario.findOne({ nombre :{$regex: parametro.adminHotel ,$options:'i'}  , rol: 'ROL_ADMINHOTEL'}, (err, adminEncontrado) => {
 				if (err) return res.status(500).send({ mensaje: 'Error en la peticion' });
 				if (!adminEncontrado) return res.status(500).send({ mensaje: 'No Se Encontro al Dueno' });
 				console.log(adminEncontrado);
-				Hotel.find({Nombre: { $regex: parametro.nombre, $options: 'i' },adminHotel: adminEncontrado._id ,},
+				Hotel.find({Nombre: { $regex: parametro.Nombre, $options: 'i' },adminHotel: adminEncontrado._id ,},
 					(err, hotelEncontrado) => {				
 						if (hotelEncontrado.length > 0)
 							return res.status(500).send({ mensaje: 'Este Hotel ya a sido creado' });
 
-						Hotelmodelo.Nombre = parametro.nombre;
-						Hotelmodelo.Descripcion = parametro.descripcion;
-						Hotelmodelo.Direccion = parametro.direccion;
+						Hotelmodelo.Nombre = parametro.Nombre;
+						Hotelmodelo.Descripcion = parametro.Descripcion;
+						Hotelmodelo.Direccion = parametro.Direccion;
 						Hotelmodelo.adminHotel = adminEncontrado._id;
 						//Imagen
 						if (req.file) {
@@ -45,16 +45,16 @@ function creaHotel(req, res) {
 		}
 	} else if (req.user.rol == 'ROL_ADMINHOTEL') {
 		//adminHotel
-		if (parametro.nombre && parametro.descripcion && parametro.direccion) {
-			Hotel.find({Nombre: { $regex: parametro.nombre, $options: 'i' },adminHotel: req.user.sub},
+		if (parametro.Nombre && parametro.Descripcion && parametro.Direccion) {
+			Hotel.find({Nombre: { $regex: parametro.Nombre, $options: 'i' },adminHotel: req.user.sub},
 				(err, hotelEncontrado) => {	
 					console.log(hotelEncontrado);	
 					if (hotelEncontrado.length > 0)
 						return res.status(500).send({ mensaje: 'Este Hotel ya a sido creado' });
 
-					Hotelmodelo.Nombre = parametro.nombre;
-					Hotelmodelo.Descripcion = parametro.descripcion;
-					Hotelmodelo.Direccion = parametro.direccion;
+					Hotelmodelo.Nombre = parametro.Nombre;
+					Hotelmodelo.Descripcion = parametro.Descripcion;
+					Hotelmodelo.Direccion = parametro.Direccion;
 					Hotelmodelo.adminHotel = req.user.sub;
 					//Imagen
 					if (req.file) {
