@@ -92,9 +92,9 @@ function editarHotel (req, res){
 		parametro.image = Hotelmodelo.imgUrl;
 		if(idHotel == null) return res.status(500).send({ mensaje: 'Necesita el id del hotel'});
 		Hotel.findByIdAndUpdate(idHotel,{$set:{
-			Nombre: parametro.nombre,
-			Descripcion: parametro.descripcion,
-			Direccion: parametro.direccion,
+			Nombre: parametro.Nombre,
+			Descripcion: parametro.Descripcion,
+			Direccion: parametro.Direccion,
 			imgUrlHoltel:parametro.image
 		},},{new: true},(err, hotelActualizado) =>{
 			if (err)return res.status(500).send({ mensaje: 'Error en la peticion de Hotel' });
@@ -111,9 +111,9 @@ function editarHotel (req, res){
 			if (!HotelEncontrado)return res.status(500).send({ mensaje: 'no se encontro hotel' });
 			if (req.user.sub == HotelEncontrado.adminHotel){
 				Hotel.findByIdAndUpdate(HotelEncontrado._id ,{$set:{
-					Nombre: parametro.nombre,
-					Descripcion: parametro.descripcion,
-					Direccion: parametro.direccion,
+					Nombre: parametro.Nombre,
+					Descripcion: parametro.Descripcion,
+					Direccion: parametro.Direccion,
 					imgUrlHoltel:parametro.image
 				},},{new: true},(err, hotelActualizado) =>{
 					if (err)return res.status(500).send({ mensaje: 'Error en la peticion de Hotel' });
