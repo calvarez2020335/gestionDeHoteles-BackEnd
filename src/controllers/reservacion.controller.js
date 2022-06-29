@@ -3,6 +3,7 @@ const Habitacion = require('../models/habitacion.model');
 const diasHabitacion = require('../models/diasHabitacion.model');
 const usuariosSubcritos = require('../models/usuariosSubcritos.model');
 const Factura = require('../models/factura.model');
+const Hotel = require('../models/hotel.model');
 // const Hotel = require('../models/hotel.model');
 // const Usuario = require('../models/usuario.model');
 
@@ -116,11 +117,54 @@ function CancelarResevacion(req, res) {
 }
 
 
+function VerReservaciones (req , res) {
+	var idHotel = req.params.idHotel;
+
+	Hotel.findOne({ _id: idHotel , adminHotel: req.user.sub } , (err, HotelEncontrado) =>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la peticion de de Encotrar Hotel'});
+		if(!HotelEncontrado) return res.status(500).send({ mensaje: 'Este Hotel No Te Pertece'});
+
+		Reservacion.find({hotel: HotelEncontrado._id} , (err, reservacionEncontrada ) =>{
+			if(err) return res.status(500).send({ mensaje: 'Error en la peticion de mostrar  reservaciones'});
+			if(!reservacionEncontrada) return res.status(500).send({ mensaje: 'Error al mostrar reservaciones'});
+			return res.status(200).send({mensaje: reservacionEncontrada});
+		});
+	});
+}
+
+function VerReservacionesId (req , res) {
+	var idReservacion = req.params.idReservacion;
+
+	Reservacion.find({_id: idReservacion }  , (err, reservacionEncontrada ) =>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la peticion de mostrar  reservaciones'});
+		if(!reservacionEncontrada) return res.status(500).send({ mensaje: 'Error al mostrar reservaciones'});
+		return res.status(200).send({mensaje: reservacionEncontrada});
+	});
+	
+}
+
+function VerReservacioneUsuario (req , res) {
+	var idUsuario = req.user.sub;
+
+	Reservacion.find({usuario: idUsuario }  , (err, reservacionEncontrada ) =>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la peticion de mostrar  reservaciones'});
+		if(!reservacionEncontrada) return res.status(500).send({ mensaje: 'Error al mostrar reservaciones'});
+		return res.status(200).send({mensaje: reservacionEncontrada});
+	});
+	
+}
+
+
+//ver reservacion y  
+//ver habitaciones disponibles 
 
 
 
 module.exports = {
 	crearReservacion,
-	CancelarResevacion
+	CancelarResevacion,
+	VerReservaciones,
+	VerReservacionesId,
+	VerReservacioneUsuario
 
 };

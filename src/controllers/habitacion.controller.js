@@ -55,7 +55,8 @@ function verHabitaciones(req, res) {
 		Habitacion.find({hotel: idHotel}, (err, habitacionEncontrada) => {
 			if(err) return res.status(404).send({mensaje: 'Error en la pettcion de buscar habitacion'});
 			if(!habitacionEncontrada) return res.status(404).send({mensaje: 'Error al buscar habitación'});
-			return res.status(200).send({habitaciones: habitacionEncontrada});
+			let disponibles = habitacionEncontrada.filter(habitacionEncontrada => habitacionEncontrada.diponibilidad.toString() == 'true' );
+			return res.status(200).send({habitaciones: disponibles});
 		});
 	}
 }
@@ -70,6 +71,25 @@ function verHabitacioId(req, res) {
 		return res.status(200).send({habitacion: habitacionEncontrada});
 	});
 
+}
+
+function verHabitacionesDisponibles(req, res) {
+	const idHotel = req.params.idHotel;
+
+	Habitacion.find({hotel: idHotel, usuario: req.user.sub}, (err, habitacionEncontrada) => {
+		let disponibles = habitacionEncontrada.filter(habitacionEncontrada => habitacionEncontrada.diponibilidad.toString() == 'true' );
+		return res.status(200).send({habitacionesDisponibles: disponibles});
+	});
+
+}
+
+function habitacionesDisponiblesNumeros(req, res) {
+	const idHotel = req.params.idHotel;
+
+	Habitacion.find({hotel: idHotel, usuario: req.user.sub}, (err, habitacionEncontrada) => {
+		let disponibles = habitacionEncontrada.filter(habitacionEncontrada => habitacionEncontrada.diponibilidad.toString() == 'true' );
+		return res.status(200).send({habitacionesDisponibles: disponibles.length});
+	});
 }
 
 function editarHabitacion(req, res) {
@@ -111,5 +131,7 @@ module.exports = {
 	verHabitaciones,
 	verHabitacioId,
 	editarHabitacion,
-	eliminarHabitacion
+	eliminarHabitacion,
+	verHabitacionesDisponibles,
+	habitacionesDisponiblesNumeros
 };

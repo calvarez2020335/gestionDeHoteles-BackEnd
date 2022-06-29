@@ -233,6 +233,14 @@ function verUsuarioId(req, res){
 
 }
 
+function verUsuariosHoteles(req, res) {
+	
+	Usuario.find({}, (err, adminEncontrado) => {
+		let hoteles = adminEncontrado.filter(adminEncontrado => adminEncontrado.rol == 'ROL_ADMINHOTEL' );
+		return res.status(200).send({adminHoteles: hoteles});
+	});
+}
+
 module.exports = {
 	crearAdminInicio,
 	Login,
@@ -241,5 +249,6 @@ module.exports = {
 	editarUsuario,
 	eliminarUsuario,
 	verUsuarios,
-	verUsuarioId
+	verUsuarioId,
+	verUsuariosHoteles
 };
