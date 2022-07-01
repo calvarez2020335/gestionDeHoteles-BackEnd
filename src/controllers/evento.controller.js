@@ -45,28 +45,14 @@ function crearEvento(req, res) {
 
 function editarEventos(req, res) {
 	const idEvento = req.params.idEvento;
-	if(idEvento == null) return res.status(500).send({mensaje: 'Necesita el id del evento'});
 	const parametros = req.body;
-	const eventosModel = new Evento();
-	if (req.file) {
-		const { filename } = req.file;
-		eventosModel.setImgUrl(filename);
-	}
-	parametros.image = eventosModel.imgUrl;
 	Evento.findById({ _id: idEvento }, (err, eventoEncontrado) => {
 		if (eventoEncontrado.adminHotel != req.user.sub)
 			return res
 				.status(500)
 				.send({ mensaje: 'No puede editar eventos que no le pertenezcan' });
 
-		Evento.findByIdAndUpdate(idEvento, {
-			set: {
-				Nombre: parametros.Nombre,
-				tipoEvento: parametros.tipoEvento,
-				Descripcion: parametros.Descripcion,
-				imgUrlEvento: parametros.imgUrlEvento,
-			},
-		}, { new: true}, (err, eventoActualizado) => {
+		Evento.findByIdAndUpdate(idEvento, {$set: {Nombre: parametros.Nombre, tipoEvento: parametros.tipoEvento, Descripcion: parametros.Descripcion}}, { new:true}, (err, eventoActualizado) => {
 			if(err) return res.status(500).send({mensaje: 'Error en la petición de editar eventos'});
 			if(!eventoActualizado) return res.status(500).send({mensaje: 'Error al editar el evento'});
 			return res.status(200).send({eventoActualizado: eventoActualizado});
