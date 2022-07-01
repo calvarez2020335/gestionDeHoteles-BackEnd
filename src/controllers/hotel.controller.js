@@ -209,11 +209,24 @@ function verHoteles(req, res){
 }
 
 function verHotelesAdmin(req, res){
-	Hotel.find({adminHotel: req.user.sub}, (err, hotelEncontrado) => {
-		if(err) return res.status(500).send({ mensaje: 'Error en la petición de ver hoteles'});
-		if(!hotelEncontrado) return res.status(500).send({ mensaje: 'Error no se pudo encotrar hoteles'});
-		return res.status(200).send({ Hoteles: hotelEncontrado });
-	});
+	if(req.user.rol == 'ROL_ADMINHOTEL'){
+		Hotel.find({adminHotel: req.user.sub}, (err, hotelEncontrado) => {
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de ver hoteles'});
+			if(!hotelEncontrado) return res.status(500).send({ mensaje: 'Error no se pudo encotrar hoteles'});
+			return res.status(200).send({ Hoteles: hotelEncontrado });
+		});
+	}else if(req.user.rol == 'ROL_ADMIN'){
+		const idUsuario = req.params.idUsuario;
+		if(idUsuario == null) return res.status(500).send({ mensaje: 'Necesita el id del usuario'});
+		Hotel.find({adminHotel: idUsuario}, (err, hotelEncontrado) => {
+			if(err) return res.status(500).send({ mensaje: 'Error en la petición de ver hoteles'});
+			if(!hotelEncontrado) return res.status(500).send({ mensaje: 'Error no se pudo encotrar hoteles'});
+			return res.status(200).send({ Hoteles: hotelEncontrado });
+		});
+
+	}else{
+		return res.status(500).send({ mensaje: 'No tiene acceso a este recurso'});
+	}
 }
 
 function verHotelesId(req, res){
