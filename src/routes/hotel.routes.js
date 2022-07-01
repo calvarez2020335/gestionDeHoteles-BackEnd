@@ -4,7 +4,7 @@ const upload = require('../libs/storage');
 const hotelController = require('../controllers/hotel.controller');
 
 const md_autenticacion = require('../middlewares/autenticacion');
-const md_roles = require('../middlewares/roles');
+//const md_roles = require('../middlewares/roles');
 
 const api = express.Router();
 
@@ -15,5 +15,5 @@ api.delete('/eliminarHotel/:idHotel', md_autenticacion.Auth ,hotelController.eli
 api.get('/verHoteles', hotelController.verHoteles );
 api.get('/verHotelesId/:idHotel' ,hotelController.verHotelesId );
 api.get('/verHoteleNombre' ,hotelController.verHoteleNombre);
-api.get('/verHotelesAdmin', [md_autenticacion.Auth, md_roles.verHotelAdmin], hotelController.verHotelesAdmin);
+api.get('/verHotelesAdmin/:idUsuario?', md_autenticacion.Auth, hotelController.verHotelesAdmin);
 module.exports = api;
