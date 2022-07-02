@@ -101,12 +101,13 @@ function verHabitaciones(req, res) {
 			return res.status(200).send({habitaciones: disponibles});
 		});
 	}
+	
 }
 
 function verHabitacioId(req, res) {
 	const idHabitacion = req.params.idHabitacion;
 	
-	Habitacion.findOne({_id: idHabitacion, usuario: req.user.sub}, (err, habitacionEncontrada) => {
+	Habitacion.findOne({_id: idHabitacion}, (err, habitacionEncontrada) => {
 		console.log(habitacionEncontrada);
 		if(err) return res.status(404).send({mensaje: 'Error en la pettcion de buscar habitacion'});
 		if(!habitacionEncontrada) return res.status(404).send({mensaje: 'No puede ver habitaciones que no le pertenezcan'});

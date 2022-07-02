@@ -15,7 +15,7 @@ function crearReservacion(req, res) {
 	var facturaModelo = new Factura();
 	const idHabitacion = req.params.idHabitacion;
 
-	if (parametro.fechaentrada){
+	if (parametro.FechaEntrada){
 		Reservacion.find({usuario: req.user.sub}, (err, usuarioEncontrado)=>{
 			if(err) return res.status(404).send({mensaje: 'Error en la petición de solicitar reservación'});
 			if(usuarioEncontrado.length > 0) return res.status(500).send({mensaje: 'Solo puede reservar una habitación'});
@@ -24,7 +24,7 @@ function crearReservacion(req, res) {
 				if(err) return res.status(500).send({ mensaje: 'Error en la peticion de buscar habitacion-reservacion' });
 				if(!habitacionEncontrada) return res.status(500).send({ mensaje: 'No Se Encontro habitacion'});
 				if( habitacionEncontrada.diponibilidad.toString() == 'false') return res.status(500).send({ mensaje: 'No puede reservar esta habitación'});
-				let dias = parseInt(parametro.fechaentrada);
+				let dias = parseInt(parametro.FechaEntrada);
 	
 				let hoy = new Date();
 				let semanaEnMilisegundos = 1000 * 60 * 60 * 24 * dias;
