@@ -83,6 +83,7 @@ function crearReservacion(req, res) {
 			});
 		});
 	} else {
+
 		return res.status(500).send({ mensaje: 'debes mandar parametros oligatorios ' });
 	}
 
