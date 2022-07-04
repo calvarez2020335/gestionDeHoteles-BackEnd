@@ -16,4 +16,5 @@ api.get('/verHoteles', hotelController.verHoteles );
 api.get('/verHotelesId/:idHotel' ,hotelController.verHotelesId );
 api.get('/verHoteleNombre' ,hotelController.verHoteleNombre);
 api.get('/verHotelesAdmin/:idUsuario?', md_autenticacion.Auth, hotelController.verHotelesAdmin);
+api.get('/HotelMasSolicitado' , md_autenticacion.Auth , hotelController.verHotelMasSolicitadoSuperAdmin);
 module.exports = api;
