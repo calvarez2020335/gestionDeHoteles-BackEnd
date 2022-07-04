@@ -34,6 +34,7 @@ function crearReservacion(req, res) {
 				ReservacionModelo.CorreoReservacion = req.user.email;
 				ReservacionModelo.FechaEntrada = hoy.toLocaleDateString();
 				ReservacionModelo.FechaSalida = fechaDentroDeUnaSemana.toLocaleDateString();
+				ReservacionModelo.Estado = 'Activa',
 				ReservacionModelo.habitacion = idHabitacion;
 				ReservacionModelo.usuario = req.user.sub;
 				ReservacionModelo.hotel = habitacionEncontrada.hotel;
@@ -51,33 +52,50 @@ function crearReservacion(req, res) {
 					DiasHabitacionModelo.save((err, diasHabitacionGuardado)=>{
 						if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
 						if (!diasHabitacionGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
-					
-						usuarioSubModelo.usuario = req.user.sub;
-						usuarioSubModelo.hotel = habitacionEncontrada.hotel;
-
-						usuarioSubModelo.save((err, usuariosSubGuardado) =>{
-							if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
-							if (!usuariosSubGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
+						
+						Hotel.findOne({_id: habitacionEncontrada.hotel}, (err, HotelEncontrado)=>{
+							if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de hotel'});
+							if (!HotelEncontrado) return res.status(500).send({ mensaje: 'Error encontrar' });
+								
 		
-							facturaModelo.Usuario = req.user.sub;
-							facturaModelo.servicios = [];
-							facturaModelo.Subtotal = 0;
-							facturaModelo.total = 0;
-							facturaModelo.hotelHospedado = habitacionEncontrada.hotel;
 
-							facturaModelo.save((err, facturaGuardada) =>{
-								if (err) return res.status(500).send({ mensaje: 'Error en la peticion de facturaGuardada' });
-								if (!facturaGuardada) return res.status(500).send({ mensaje: 'Error al agregar una factura' });
+							usuarioSubModelo.usuario = req.user.sub;
+							usuarioSubModelo.NombreUsuario = req.user.nombre;
+							usuarioSubModelo.NombreHotel = HotelEncontrado.Nombre;
+							usuarioSubModelo.hotel = habitacionEncontrada.hotel;
+		
 
-								ReservacionModelo.save((err, reservacionGuardada) =>{
-									if (err) return res.status(500).send({ mensaje: 'Error en la peticion de reservacion' });
-									if (!reservacionGuardada) return res.status(500).send({ mensaje: 'Error al agregar una reservacion' });
-									return res.status(200).send({ ReservacionTotal: reservacionGuardada , diasHabitacionGuardado, habitacionActualizada, usuariosSubGuardado, facturaGuardada});
+							usuarioSubModelo.save((err, usuariosSubGuardado) =>{
+								if(err) return res.status(500).send({ mensaje: 'Error en la peticion de guardar en el modelo de diasHabitacion'});
+								if (!usuariosSubGuardado) return res.status(500).send({ mensaje: 'Error al guardar en el modelo dias' });
+		
+								facturaModelo.Usuario = req.user.sub;
+								facturaModelo.servicios = [];
+								facturaModelo.Subtotal = 0;
+								facturaModelo.total = 0;
+								facturaModelo.hotelHospedado = habitacionEncontrada.hotel;
+
+								facturaModelo.save((err, facturaGuardada) =>{
+									if (err) return res.status(500).send({ mensaje: 'Error en la peticion de facturaGuardada' });
+									if (!facturaGuardada) return res.status(500).send({ mensaje: 'Error al agregar una factura' });
+
+									Hotel.findOneAndUpdate({ _id:  habitacionEncontrada.hotel} , { $inc: { VecesSolicitado: 1 } } ,{new: true} , (err , HotelSolicitado) =>{
+										if (err) return res.status(500).send({ mensaje: 'Error en la peticion de actuaizar solicitacion de hotel' });
+										if (!HotelSolicitado) return res.status(500).send({ mensaje: 'Error al actualiza la solicitacion' });
+		
+
+										ReservacionModelo.save((err, reservacionGuardada) =>{
+											if (err) return res.status(500).send({ mensaje: 'Error en la peticion de reservacion' });
+											if (!reservacionGuardada) return res.status(500).send({ mensaje: 'Error al agregar una reservacion' });
+											return res.status(200).send({ ReservacionTotal: reservacionGuardada , diasHabitacionGuardado, habitacionActualizada, usuariosSubGuardado, facturaGuardada, HotelSolicitado});
+										});
+
+									} );
 								});
-							});
 							
 				
-						});
+							});
+						});	
 					});
 				});
 			});
@@ -104,13 +122,13 @@ function CancelarResevacion(req, res) {
 			const nuevoDiaSalida = fechaSalida - diaInicial;
 			const nuevoTotal = diasHabitacionEncontrada.PrecioHabitacion * nuevoDiaSalida;
 
-			Reservacion.findOneAndUpdate({usuario: idUsuario}, {FechaSalida: hoy.toLocaleDateString()}, {new:true}, (err, reservacionActualizada)=>{
+			Reservacion.findOneAndUpdate({usuario: idUsuario}, {FechaSalida: hoy.toLocaleDateString(), Estado: 'Cancelada'}, {new:true}, (err, reservacionActualizada)=>{
 				if(err) return res.status(500).send({ mensaje: 'Error en la peticion de editar fechas de salida'});
 				if(!reservacionActualizada) return res.status(500).send({ mensaje: 'Error al editar fecha de salida'});
 				diasHabitacion.findOneAndUpdate({usuario: idUsuario}, {dias: nuevoDiaSalida, Total: nuevoTotal}, {new: true}, (err, diasActualizados)=>{
 					if(err) return res.status(500).send({ mensaje: 'Error en la peticion de editar dia de salida'});
 					if(!diasActualizados) return res.status(500).send({ mensaje: 'Error al editar dia de salida'});
-					return res.status(200).send({mensaje:diasActualizados, reservacionActualizada});
+					return res.status(200).send({mensaje:reservacionActualizada});
 				});
 			});
 		});
