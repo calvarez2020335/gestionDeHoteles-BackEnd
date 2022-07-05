@@ -7,7 +7,7 @@ function VerHistorial (req, res) {
 		if(err) return res.status(500).send({ mensaje: 'Error en la petición de buscar historial'});
 		if(!HistorialEncontrado) return res.status(500).send({ mensaje: 'Error la busacar historial otro'});
 
-		return res.status(200).send({HistorialEncontrado: HistorialEncontrado});
+		return res.status(200).send({mensaje: HistorialEncontrado});
 	});
 
 }
