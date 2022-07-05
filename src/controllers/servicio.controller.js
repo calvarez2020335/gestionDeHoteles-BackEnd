@@ -138,11 +138,25 @@ function servicioHabitacion(req, res) {
 	});
 }
 
+
+function verGastosServicios (req, res) {
+
+	GastosServicios.find({Usuario: req.user.sub}, (err, GastosEncontrados) =>{
+		if(err) return res.status(500).send({mensaje: 'Error en la petición de GastosEncontrados'});
+		if(!GastosEncontrados) return res.status(200).send({mensaje: 'Error al GastosEncontrados'});
+
+		return res.status(200).send({mensaje: GastosEncontrados}); 
+
+	});
+
+}
+
 module.exports= {
 	registrarServicio,
 	verServicios,
 	verServiciosId,
 	editarServicio,
 	eliminarServicio,
-	servicioHabitacion
+	servicioHabitacion,
+	verGastosServicios
 };
