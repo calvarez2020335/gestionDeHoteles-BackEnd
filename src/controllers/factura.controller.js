@@ -57,10 +57,8 @@ function confirmarFactura (req , res) {
 						if (err) return res.status(500).send({ mensaje: 'error en la peticion del eliminar el carrito' });
 						if (!facturaActualzada) return res.status(500).send({ mensaje: 'error al eliminar el producto al carrito' });
 		
-						console.log(facturaActualzada);
+						return	res.status(200).send({ mensaje: facturaActualzada});
 					});
-					console.log(totallocal);
-					return	res.status(200).send({ gastoEncontrado:  gastoEncontrado});
 				});
 
 			});
