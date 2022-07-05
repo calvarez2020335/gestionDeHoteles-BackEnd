@@ -27,6 +27,7 @@ function creaHotel(req, res) {
 						Hotelmodelo.Descripcion = parametro.Descripcion;
 						Hotelmodelo.Direccion = parametro.Direccion;
 						Hotelmodelo.adminHotel = adminEncontrado._id;
+						Hotelmodelo.VecesSolicitado= 0;
 						//Imagen
 						if (req.file) {
 							const { filename } = req.file;
@@ -56,6 +57,7 @@ function creaHotel(req, res) {
 					Hotelmodelo.Descripcion = parametro.Descripcion;
 					Hotelmodelo.Direccion = parametro.Direccion;
 					Hotelmodelo.adminHotel = req.user.sub;
+					Hotelmodelo.VecesSolicitado= 0;
 					//Imagen
 					if (req.file) {
 						const { filename } = req.file;
@@ -253,6 +255,21 @@ function verHoteleNombre(req, res){
 	});
 }
 
+function verHotelMasSolicitadoSuperAdmin(req, res){
+
+	Hotel.find( {}, (err, HotelEncontrado) =>{
+		if(err) return res.status(500).send({ mensaje: 'Error en la petición de ver hoteles'});
+		if(!HotelEncontrado) return res.status(500).send({ mensaje: 'Error no se pudo encotrar hoteles'});
+		return res.status(200).send({ mensaje: HotelEncontrado });
+		
+	}).sort({ VecesSolicitado: -1 });
+
+}
+
+
+
+
+
 module.exports = {
 	creaHotel,
 	editarHotel,
@@ -260,5 +277,6 @@ module.exports = {
 	verHoteles,
 	verHotelesId,
 	verHoteleNombre,
-	verHotelesAdmin
+	verHotelesAdmin,
+	verHotelMasSolicitadoSuperAdmin
 };

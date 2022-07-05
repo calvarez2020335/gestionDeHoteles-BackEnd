@@ -6,6 +6,7 @@ const HotelSchema = Schema({
 	Nombre: String,
 	Descripcion: String,
 	Direccion: String,
+	VecesSolicitado: Number,
 	imgUrlHoltel: String,
 	adminHotel: { type: Schema.Types.ObjectId, ref: 'Usuarios' },
 });

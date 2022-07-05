@@ -8,8 +8,8 @@ const md_roles = require('../middlewares/roles');
 const api = express.Router();
 
 // Rutas
-api.post('/reservacion/:idHabitacion', [md_autenticacion.Auth] ,reservacionController.crearReservacion);
-api.get('/cancelarReservacion' ,[md_autenticacion.Auth ,md_roles.verUsuario ], reservacionController.CancelarResevacion );
+api.post('/reservacion/:idHabitacion', [md_autenticacion.Auth, md_roles.verUsuario] ,reservacionController.crearReservacion);
+api.delete('/cancelarReservacion' ,[md_autenticacion.Auth ,md_roles.verUsuario ], reservacionController.CancelarResevacion );
 api.get('/VerReservaciones/:idHotel', [md_autenticacion.Auth ,md_roles.verHotelAdmin ] , reservacionController.VerReservaciones);
 api.get('/VerReservacionesId/:idReservacion' ,[md_autenticacion.Auth ,md_roles.verHotelAdmin ], reservacionController.VerReservacionesId );
 api.get('/VerReservacionesUser' , [md_autenticacion.Auth ,md_roles.verUsuario ] , reservacionController.VerReservacioneUsuario);
