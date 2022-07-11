@@ -54,10 +54,8 @@ function confirmarFactura (req , res) {
 						if (err) return res.status(500).send({ mensaje: 'error en la peticion del eliminar el carrito' });
 						if (!facturaActualzada) return res.status(500).send({ mensaje: 'error al eliminar el producto al carrito' });
 		
-						console.log(facturaActualzada);
+						return	res.status(200).send({ mensaje: facturaActualzada});
 					});
-					console.log(totallocal);
-					return	res.status(200).send({ gastoEncontrado:  gastoEncontrado});
 				});
 
 			});
@@ -191,7 +189,7 @@ function pdf(req, res) {
 	
 							doc.lineJoin('miter')
 								.rect(0, doc.footer.y, doc.page.width, doc.footer.options.heightNumber).fill('#128AB0');
-							doc.fill('#FFFFFF').fontSize(25).text(`Total: ${facturaEncotrada.total}.00 Quetzales`, doc.footer.x + 110, doc.footer.y + 25, {
+							doc.fill('#FFFFFF').fontSize(25).text(`Total: ${facturaEncotrada.total} Quetzales`, doc.footer.x + 110, doc.footer.y + 25, {
 								align: 'right',
 							});
 							doc.fill('#FFFFFF').fontSize(15).text(`Emisión De Factura: ${fechaYHora}`, doc.footer.x, doc.footer.y + 131, {
@@ -234,7 +232,10 @@ function pdf(req, res) {
 							});
 						
 						// render tables
-						/////////////////////FIN GENERAR PDF////////////////////////////////////////////////
+						doc.render();
+						doc.pipe(res);
+						doc.end();
+						///////////////////////////////////////FIN GENERAR PDF////////////////////////////////////////////////
 
 						///////////////////////////////////////Actualizar Habitaciones////////////////////////////////////////
 						Habitacion.findOneAndUpdate({Usuario: usuarioEncontrado._id}, {$set:{ diponibilidad: 'true'}}, {new:true}, (err, habitacionActualizada)=>{
@@ -260,14 +261,15 @@ function pdf(req, res) {
 
 						///////////////////////////////////////Eliminar datos innecesarios////////////////////////////////////////
 						GastosServicios.deleteMany({Usuario: usuarioEncontrado._id}, (err, gastosServicios)=>{
+							
 						});
 
 						Reservacion.findOneAndDelete({usuario: usuarioEncontrado._id}, (err, reservacionDelete)=>{
-		
+							
 						});
 
 						DiasHabitacion.findOneAndDelete({Usuario: usuarioEncontrado._id}, (err, diasDelete)=>{
-
+							
 						});
 
 						Factura.findByIdAndDelete(idFactura, (err, facturaEliminada)=>{
@@ -276,21 +278,17 @@ function pdf(req, res) {
 							///////////////////////////////////////actualizar Historial////////////////////////////////////////////////
 							for (let i = 0; i < facturaEliminada.servicios.length; i++) {
 	
-
-								console.log('servicios de factura' +  facturaEliminada.servicios[i]);
-								Historial.findOneAndUpdate({usuario: facturaEliminada.Usuario ,hotel: UsuariosSubcritoEncontrado.hotel } , 
+								Historial.findOneAndUpdate ({usuario: facturaEliminada.Usuario } , 
 									{$push: { servicios: { nombreServicios : facturaEliminada.servicios[i].nombreServicios}}} 
 									, {new: true} , (err, HistrorialActualizado) =>{
-							
+
+										
 									});
 							}
 							///////////////////////////////////////fin actualizar Historial////////////////////////////////////////////////
 						});
 						
-						doc.render();
-						doc.pipe(res);
-						doc.end();
-						//////////////////
+
 
 						///////////////////////////////////////Fin Eliminar datos innecesarios////////////////////////////////////
 					});	
@@ -302,11 +300,9 @@ function pdf(req, res) {
 }
 
 
-
 module.exports = {
 	confirmarFactura,
 	pdf,
 	VerFactura,
-	VerFacturaId,
-
+	VerFacturaId
 };
