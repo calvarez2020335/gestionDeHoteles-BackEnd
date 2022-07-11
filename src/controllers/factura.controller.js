@@ -20,8 +20,6 @@ function confirmarFactura (req , res) {
 		Hotel.findOne({_id:facturaEncotrada.hotelHospedado, adminHotel: req.user.sub }, (err, adminHotelEncontrado) => {
 			if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar adminHotel' });
 			if(!adminHotelEncontrado) return res.status(500).send({ mensaje: 'Esta factura no pertenece a tu hotel' });
-			console.log(adminHotelEncontrado);
-
 			GastosServicios.find({Usuario: facturaEncotrada.Usuario} , (err, gastoEncontrado) =>{
 				if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar servicios solicitados' });
 				if (!gastoEncontrado) return res.status(500).send({ mensaje: 'error al buscar servicios solicitaodos' });
@@ -50,17 +48,14 @@ function confirmarFactura (req , res) {
 					}
 
 					totalfactura = totallocal  + diasHabitacion.Total;
-					console.log(totalfactura);
 				
 
 					Factura.findOneAndUpdate ({_id: facturaEncotrada._id } , { Subtotal : totallocal , total:  totalfactura}, {new: true} , (err, facturaActualzada) =>{
 						if (err) return res.status(500).send({ mensaje: 'error en la peticion del eliminar el carrito' });
 						if (!facturaActualzada) return res.status(500).send({ mensaje: 'error al eliminar el producto al carrito' });
 		
-						console.log(facturaActualzada);
+						return	res.status(200).send({ mensaje: facturaActualzada});
 					});
-					console.log(totallocal);
-					return	res.status(200).send({ gastoEncontrado:  gastoEncontrado});
 				});
 
 			});
@@ -145,7 +140,6 @@ function pdf(req, res) {
 								precio: 'Q' +  prueba.precio +'.00' ,
 							};
 							count++;
-							console.log(registro );
 							return registro;
 						});
 
@@ -156,7 +150,6 @@ function pdf(req, res) {
 								precio: 'Q' + prueba.PrecioHabitacion + '.00',
 								Total: 'Q' + prueba.Total + '.00'
 							};
-							console.log(habitacion);
 							return habitacion;
 						});
 
@@ -246,7 +239,6 @@ function pdf(req, res) {
 
 						///////////////////////////////////////Actualizar Habitaciones////////////////////////////////////////
 						Habitacion.findOneAndUpdate({Usuario: usuarioEncontrado._id}, {$set:{ diponibilidad: 'true'}}, {new:true}, (err, habitacionActualizada)=>{
-							console.log(habitacionActualizada);
 						});
 
 						///////////////////////////////////////Insertar Historial////////////////////////////////////////////////
@@ -257,7 +249,7 @@ function pdf(req, res) {
 						HistorialModelo.servicios = [] ;
 
 						HistorialModelo.save((err, HistorialRegistrado)=>{
-							console.log(HistorialRegistrado);
+			
 						});
 						
 						///////////////////////////////////////fin de Insertar Historial////////////////////////////////////////////////
@@ -269,19 +261,19 @@ function pdf(req, res) {
 
 						///////////////////////////////////////Eliminar datos innecesarios////////////////////////////////////////
 						GastosServicios.deleteMany({Usuario: usuarioEncontrado._id}, (err, gastosServicios)=>{
-							console.log(gastosServicios);
+							
 						});
 
 						Reservacion.findOneAndDelete({usuario: usuarioEncontrado._id}, (err, reservacionDelete)=>{
-							console.log(reservacionDelete);
+							
 						});
 
 						DiasHabitacion.findOneAndDelete({Usuario: usuarioEncontrado._id}, (err, diasDelete)=>{
-							console.log(diasDelete);
+							
 						});
 
 						Factura.findByIdAndDelete(idFactura, (err, facturaEliminada)=>{
-							console.log('factura eliminada' +  facturaEliminada);
+							
 
 							///////////////////////////////////////actualizar Historial////////////////////////////////////////////////
 							for (let i = 0; i < facturaEliminada.servicios.length; i++) {
@@ -290,7 +282,7 @@ function pdf(req, res) {
 									{$push: { servicios: { nombreServicios : facturaEliminada.servicios[i].nombreServicios}}} 
 									, {new: true} , (err, HistrorialActualizado) =>{
 
-										console.log( 'historial' + HistrorialActualizado);
+										
 									});
 							}
 							///////////////////////////////////////fin actualizar Historial////////////////////////////////////////////////

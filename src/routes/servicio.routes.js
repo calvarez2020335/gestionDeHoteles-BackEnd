@@ -12,5 +12,5 @@ api.get('/verServiciosId/:idServicio', md_autenticacion.Auth, servicioController
 api.put('/editarServicio/:idServicio', [md_autenticacion.Auth, md_roles.verHotelAdmin], servicioController.editarServicio);
 api.delete('/eliminarServicio/:idServicio', [md_autenticacion.Auth, md_roles.verHotelAdmin], servicioController.eliminarServicio);
 api.post('/servicioHabitacion',[md_autenticacion.Auth, md_roles.verUsuario], servicioController.servicioHabitacion);
-
+api.get('/VerServiciosUser', [md_autenticacion.Auth, md_roles.verUsuario],servicioController.verGastosServicios);
 module.exports = api;

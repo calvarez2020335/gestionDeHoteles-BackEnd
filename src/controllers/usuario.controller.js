@@ -200,8 +200,10 @@ function eliminarUsuario(req, res) {
 
 function verUsuarios(req, res){
 	if (req.user.rol == 'ROL_ADMIN') {
+		
 		Usuario.find({}, (err, UsuarioEncontrado) => {
-			return res.status(200).send({ Empresas: UsuarioEncontrado });
+			let usuarios = UsuarioEncontrado.filter(usuario => usuario.rol != 'ROL_ADMIN');
+			return res.status(200).send({ Empresas: usuarios });
 		});
 	}else{
 		Usuario.find({ _id: req.user.rol }, (err, UsuarioEncontrado) => {

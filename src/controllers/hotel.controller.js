@@ -17,7 +17,6 @@ function creaHotel(req, res) {
 			Usuario.findOne({ nombre :{$regex: parametro.adminHotel ,$options:'i'}  , rol: 'ROL_ADMINHOTEL'}, (err, adminEncontrado) => {
 				if (err) return res.status(500).send({ mensaje: 'Error en la peticion' });
 				if (!adminEncontrado) return res.status(500).send({ mensaje: 'No Se Encontro al Dueno' });
-				console.log(adminEncontrado);
 				Hotel.find({Nombre: { $regex: parametro.Nombre, $options: 'i' },adminHotel: adminEncontrado._id ,},
 					(err, hotelEncontrado) => {				
 						if (hotelEncontrado.length > 0)
@@ -49,7 +48,6 @@ function creaHotel(req, res) {
 		if (parametro.Nombre && parametro.Descripcion && parametro.Direccion) {
 			Hotel.find({Nombre: { $regex: parametro.Nombre, $options: 'i' },adminHotel: req.user.sub},
 				(err, hotelEncontrado) => {	
-					console.log(hotelEncontrado);	
 					if (hotelEncontrado.length > 0)
 						return res.status(500).send({ mensaje: 'Este Hotel ya a sido creado' });
 
@@ -134,25 +132,19 @@ function eliminarHotel(req, res) {
 	var idHotel = req.params.idHotel;
 	if (req.user.rol == 'ROL_ADMIN'){
 		//Administrador
-		console.log(idHotel);
 		if(idHotel == null) return res.status(500).send({ mensaje: 'Necesita el id del hotel'});
 		Servicios.deleteMany( {hotel: idHotel }, (err, servicioEliminado) =>{
 			if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar servicios'});
 			if(!servicioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar servicios admin'});
-			//return res.status(200).send({servicioEliminado: servicioEliminado});
-			console.log(servicioEliminado);
 			Reservacion.deleteMany( {hotel: idHotel }, (err, reservacionEliminado) =>{ 
 				if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar reservacion'});
 				if(!reservacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar reservacion admin'});
-				console.log(reservacionEliminado);
 				Habitacion.deleteMany( {hotel: idHotel }, (err, HabitacionEliminado) =>{ 
 					if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar habitacion'});
-					if(!HabitacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar habitacion admin'});
-					console.log(HabitacionEliminado);	
+					if(!HabitacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar habitacion admin'});	
 					Eventos.deleteMany( {hotel: idHotel }, (err, EventosEliminado) =>{ 
 						if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar eventos'});
 						if(!EventosEliminado) return res.status(500).send({ mensaje: 'Error al eliminar eventos admin'});
-						console.log(EventosEliminado);
 						Hotel.findByIdAndDelete(idHotel, (err, hotelEliminado)=>{
 							if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar hotel'});
 							if(!hotelEliminado) return res.status(500).send({ mensaje: 'Error al eliminar hotel admin'});
@@ -171,20 +163,15 @@ function eliminarHotel(req, res) {
 				Servicios.deleteMany( {hotel: idHotel }, (err, servicioEliminado) =>{
 					if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar servicios'});
 					if(!servicioEliminado) return res.status(500).send({ mensaje: 'Error al eliminar servicios admin'});
-					//return res.status(200).send({servicioEliminado: servicioEliminado});
-					console.log(servicioEliminado);
 					Reservacion.deleteMany( {hotel: idHotel }, (err, reservacionEliminado) =>{ 
 						if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar reservacion'});
 						if(!reservacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar reservacion admin'});
-						console.log(reservacionEliminado);
 						Habitacion.deleteMany( {hotel: idHotel }, (err, HabitacionEliminado) =>{ 
 							if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar habitacion'});
 							if(!HabitacionEliminado) return res.status(500).send({ mensaje: 'Error al eliminar habitacion admin'});
-							console.log(HabitacionEliminado);
 							Eventos.deleteMany( {hotel: idHotel }, (err, EventosEliminado) =>{ 
 								if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar eventos'});
 								if(!EventosEliminado) return res.status(500).send({ mensaje: 'Error al eliminar eventos admin'});
-								console.log(EventosEliminado);
 								Hotel.findByIdAndDelete(idHotel, (err, hotelEliminado)=>{
 									if(err) return res.status(500).send({ mensaje: 'Error en la petición de eliminar hotel'});
 									if(!hotelEliminado) return res.status(500).send({ mensaje: 'Error al eliminar hotel admin'});
