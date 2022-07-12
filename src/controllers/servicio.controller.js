@@ -2,7 +2,6 @@ const Servicio = require('../models/servicio.model');
 const Hotel = require('../models/hotel.model');
 const Reservacion = require('../models/reservacion.model');
 const GastosServicios = require('../models/gastosServicios.model');
-let date = new Date();
 
 //Funcion para que el administrador del hotel pueda registrar servicios que ofrecen sus habitación en su hotel
 function registrarServicio(req, res) {
@@ -118,9 +117,6 @@ function servicioHabitacion(req, res) {
 	Reservacion.findOne({usuario: idUsuario}, (err, reservacionEncontrada) => {
 		if(err) return res.status(500).send({mensaje: 'Error en la petición en buscar la reservación'});
 		if(!reservacionEncontrada) return res.status(404).send({mensaje: 'No ha hecho una reservación '});
-		const fechaSalida = parseInt(reservacionEncontrada.FechaSalida);
-		const hoy = parseInt(date.getDate());
-		if(hoy > fechaSalida) return res.status(500).send({mensaje: 'La reservación ya a caducado'});
 		Servicio.findOne({servicio: {$regex: parametro.servicio, $options:'i'}}, (err, servicioEncontrado)=>{
 			if(err) return res.status(500).send({mensaje: 'Error en la peticion de buscar servicio'});
 			if(!servicioEncontrado) return res.status(500).send({mensaje: 'Error al buscar servicios'});	
