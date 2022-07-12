@@ -9,6 +9,7 @@ const FacturaSchema = Schema({
 	}],
 	Subtotal:Number,
 	total:Number,
+	estado: String,
 	hotelHospedado: {type: Schema.Types.ObjectId, ref: 'Hoteles'}
 });
 

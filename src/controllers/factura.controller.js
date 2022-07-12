@@ -17,6 +17,8 @@ function confirmarFactura (req , res) {
 		if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar factura' });
 		if (!facturaEncotrada) return res.status(500).send({ mensaje: 'Error en buscar factura' });
 
+		if(facturaEncotrada.estado == 'Confirmado') return res.status(500).send({ mensaje: 'Esta factura ya fue confirmada'});
+
 		Hotel.findOne({_id:facturaEncotrada.hotelHospedado, adminHotel: req.user.sub }, (err, adminHotelEncontrado) => {
 			if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar adminHotel' });
 			if(!adminHotelEncontrado) return res.status(500).send({ mensaje: 'Esta factura no pertenece a tu hotel' });
@@ -50,7 +52,7 @@ function confirmarFactura (req , res) {
 					totalfactura = totallocal  + diasHabitacion.Total;
 				
 
-					Factura.findOneAndUpdate ({_id: facturaEncotrada._id } , { Subtotal : totallocal , total:  totalfactura}, {new: true} , (err, facturaActualzada) =>{
+					Factura.findOneAndUpdate ({_id: facturaEncotrada._id } , { Subtotal : totallocal , total:  totalfactura, estado: 'Confirmado'}, {new: true} , (err, facturaActualzada) =>{
 						if (err) return res.status(500).send({ mensaje: 'error en la peticion del eliminar el carrito' });
 						if (!facturaActualzada) return res.status(500).send({ mensaje: 'error al eliminar el producto al carrito' });
 		
@@ -109,26 +111,26 @@ function pdf(req, res) {
 
 	const HistorialModelo = new Historial();
 
-	
 	Factura.findOne( {_id: idFactura}, (err, facturaEncotrada) =>{
 		if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar factura' });
 		if (!facturaEncotrada) return res.status(500).send({ mensaje: 'error al buscar factura' });
 	
-		UsuariosSubcrito.findOne( {usuario: facturaEncotrada.Usuario}, (err, UsuariosSubcritoEncontrado) =>{
-			if (err) return res.status(500).send({ mensaje: 'error en la peticion del buscarUsarioSubscrito' });
-			if (!UsuariosSubcritoEncontrado) return res.status(500).send({ mensaje: 'error al buscarUsarioSubscrito' }); 
+		Hotel.findOne({_id : facturaEncotrada.hotelHospedado } , (err, HotelEncotrado) =>{
+			if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar hotel' });
+			if (!HotelEncotrado) return res.status(500).send({ mensaje: 'error al buscar hotel' }); 
 	
-			Hotel.findOne({_id : UsuariosSubcritoEncontrado.hotel } , (err, HotelEncotrado) =>{
-				if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar hotel' });
-				if (!HotelEncotrado) return res.status(500).send({ mensaje: 'error al buscar hotel' }); 
-	
-				Usuario.findOne({_id: UsuariosSubcritoEncontrado.usuario} , (err, usuarioEncontrado) =>{
-					if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar usuario' });
-					if (!usuarioEncontrado) return res.status(500).send({ mensaje: 'error al buscar usuario' }); 
+			Usuario.findOne({_id: facturaEncotrada.Usuario} , (err, usuarioEncontrado) =>{
+				if (err) return res.status(500).send({ mensaje: 'error en la peticion de buscar usuario' });
+				if (!usuarioEncontrado) return res.status(500).send({ mensaje: 'error al buscar usuario' }); 
 					
-					DiasHabitacion.find({Usuario: facturaEncotrada.Usuario}, (err, diasHabitacion)=>{
+				DiasHabitacion.find({Usuario: facturaEncotrada.Usuario}, (err, diasHabitacion)=>{
+					if(err) return res.status(500).send({ mensaje: 'Error en la peticion de buscar habitacion precio reserva'});
+					if(!diasHabitacion) return res.status(500).send({ mensaje: 'Error al buscar habitacion precio reserva'});
+
+					DiasHabitacion.findOne({Usuario: facturaEncotrada.Usuario}, (err, diasHabitacion2)=>{
 						if(err) return res.status(500).send({ mensaje: 'Error en la peticion de buscar habitacion precio reserva'});
-						if(!diasHabitacion) return res.status(500).send({ mensaje: 'Error al buscar habitacion precio reserva'});
+						if(!diasHabitacion2) return res.status(500).send({ mensaje: 'Error al buscar habitacion precio reserva'});
+					
 						
 						///////////////////////////////////////GENERAR PDF////////////////////////////////////////////////
 						let count = 1;
@@ -145,7 +147,7 @@ function pdf(req, res) {
 
 						const habitaciones = diasHabitacion.map((prueba) => {
 							const habitacion = {
-								// NumHabitacion: prueba.numHabitacion,
+							// NumHabitacion: prueba.numHabitacion,
 								dias: prueba.dias,
 								precio: 'Q' + prueba.PrecioHabitacion + '.00',
 								Total: 'Q' + prueba.Total + '.00'
@@ -166,10 +168,6 @@ function pdf(req, res) {
 						}, () => {
 							doc.lineJoin('miter')
 								.rect(0, 0, doc.page.width, doc.header.options.heightNumber).fill('#155B98');
-							doc.image('images/kumtatz_propuesta_3.3.jpeg', 495, 0, {fit: [80, 80]})
-								.rect(495, 0, 80, 80)
-								.stroke()
-								.text('Fit', 495, 0);
 							doc.fill('#ffff')
 								.fontSize(20)
 								.text( `Hotel: ${HotelEncotrado.Nombre}`, doc.header.x, doc.header.y);
@@ -197,106 +195,178 @@ function pdf(req, res) {
 							});
 						});
 
-						doc.addTable(
-							[
-								{key: 'Num', label: '#', align: 'center'},
-								{key: 'nombre', label: 'Servicios Prestados', align: 'center'},
-								{key: 'precio' , label: 'Precio', align: 'center'},
-							],
-							registros, {
-								border: null,
-								width: 'fill_body',
-								striped: true,
-								stripedColors: ['#f6f6f6', '#d6c4dd'],
-								cellsPadding: 10,
-								marginLeft: 45,
-								marginRight: 45,
-								headAlign: 'center'
-							});
-
-						doc.addTable(
-							[
-								{key: 'dias', label: 'Dias Hospedados', align: 'center'},
-								{key: 'precio', label: 'Precio unitario', align: 'center'},
-								{key: 'Total', label: 'Total', align: 'center'},
-							],
-							habitaciones, {
-								border: null,
-								width: 'fill_body',
-								striped: true,
-								stripedColors: ['#f6f6f6', '#d6c4dd'],
-								cellsPadding: 10,
-								marginLeft: 45,
-								marginRight: 45,
-								headAlign: 'center'
-							});
-						
-						// render tables
-						doc.render();
-						doc.pipe(res);
-						doc.end();
-						///////////////////////////////////////FIN GENERAR PDF////////////////////////////////////////////////
-
-						///////////////////////////////////////Actualizar Habitaciones////////////////////////////////////////
-						Habitacion.findOneAndUpdate({Usuario: usuarioEncontrado._id}, {$set:{ diponibilidad: 'true'}}, {new:true}, (err, habitacionActualizada)=>{
-						});
-
-						///////////////////////////////////////Insertar Historial////////////////////////////////////////////////
-
-						HistorialModelo.usuario =  facturaEncotrada.Usuario;
-						HistorialModelo.hotel = UsuariosSubcritoEncontrado.hotel;
-						HistorialModelo.NombreHotel = HotelEncotrado.Nombre;
-						HistorialModelo.servicios = [] ;
-
-						HistorialModelo.save((err, HistorialRegistrado)=>{
-			
-						});
-						
-						///////////////////////////////////////fin de Insertar Historial////////////////////////////////////////////////
-			
-
-
-
-						///////////////////////////////////////Fin Actualizar Habitaciones////////////////////////////////////
-
-						///////////////////////////////////////Eliminar datos innecesarios////////////////////////////////////////
-						GastosServicios.deleteMany({Usuario: usuarioEncontrado._id}, (err, gastosServicios)=>{
-							
-						});
-
-						Reservacion.findOneAndDelete({usuario: usuarioEncontrado._id}, (err, reservacionDelete)=>{
-							
-						});
-
-						DiasHabitacion.findOneAndDelete({Usuario: usuarioEncontrado._id}, (err, diasDelete)=>{
-							
-						});
-
-						Factura.findByIdAndDelete(idFactura, (err, facturaEliminada)=>{
-							
-
-							///////////////////////////////////////actualizar Historial////////////////////////////////////////////////
-							for (let i = 0; i < facturaEliminada.servicios.length; i++) {
+						if(facturaEncotrada.servicios.length > 0){
+							doc.addTable(
+								[
+									{key: 'Num', label: '#', align: 'center'},
+									{key: 'nombre', label: 'Servicios Prestados', align: 'center'},
+									{key: 'precio' , label: 'Precio', align: 'center'},
+								],
+								registros, {
+									border: null,
+									width: 'fill_body',
+									striped: true,
+									stripedColors: ['#f6f6f6', '#d6c4dd'],
+									cellsPadding: 10,
+									marginLeft: 45,
+									marginRight: 45,
+									headAlign: 'center'
+								});
 	
-								Historial.findOneAndUpdate ({usuario: facturaEliminada.Usuario } , 
-									{$push: { servicios: { nombreServicios : facturaEliminada.servicios[i].nombreServicios}}} 
-									, {new: true} , (err, HistrorialActualizado) =>{
+							doc.addTable(
+								[
+									{key: 'dias', label: 'Dias Hospedados', align: 'center'},
+									{key: 'precio', label: 'Precio unitario', align: 'center'},
+									{key: 'Total', label: 'Total', align: 'center'},
+								],
+								habitaciones, {
+									border: null,
+									width: 'fill_body',
+									striped: true,
+									stripedColors: ['#f6f6f6', '#d6c4dd'],
+									cellsPadding: 10,
+									marginLeft: 45,
+									marginRight: 45,
+									headAlign: 'center'
+								});
+
+							///////////////////////////////////////FIN GENERAR PDF////////////////////////////////////////////////
+
+							///////////////////////////////////////Actualizar Habitaciones////////////////////////////////////////
+							Habitacion.findOneAndUpdate({_id: diasHabitacion2.habitacion}, {$set:{ diponibilidad: 'true'}}, {new:true}, (err, habitacionActualizada)=>{
+							});
+
+							///////////////////////////////////////Insertar Historial////////////////////////////////////////////////
+
+							HistorialModelo.usuario =  facturaEncotrada.Usuario;
+							HistorialModelo.hotel = facturaEncotrada.hotelHospedado;
+							HistorialModelo.NombreHotel = HotelEncotrado.Nombre;
+							HistorialModelo.factura = idFactura;
+							HistorialModelo.servicios = [] ;
+
+							HistorialModelo.save((err, HistorialRegistrado)=>{
+			
+							});
+						
+							///////////////////////////////////////fin de Insertar Historial////////////////////////////////////////////////
+			
+
+
+
+							///////////////////////////////////////Fin Actualizar Habitaciones////////////////////////////////////
+
+							///////////////////////////////////////Eliminar datos innecesarios////////////////////////////////////////
+							GastosServicios.deleteMany({Usuario: usuarioEncontrado._id}, (err, gastosServicios)=>{
+							
+							});
+
+							Reservacion.findOneAndDelete({usuario: usuarioEncontrado._id}, (err, reservacionDelete)=>{
+							
+							});
+
+							DiasHabitacion.findOneAndDelete({Usuario: usuarioEncontrado._id}, (err, diasDelete)=>{
+							
+							});
+
+							Factura.findByIdAndDelete(idFactura, (err, facturaEliminada)=>{
+							
+
+								///////////////////////////////////////actualizar Historial////////////////////////////////////////////////
+								for (let i = 0; i < facturaEliminada.servicios.length; i++) {
+	
+									Historial.findOneAndUpdate ({factura: idFactura } , 
+										{$push: { servicios: { nombreServicios : facturaEliminada.servicios[i].nombreServicios}}} 
+										, {new: true} , (err, HistrorialActualizado) =>{
 
 										
-									});
-							}
+										});
+								}
 							///////////////////////////////////////fin actualizar Historial////////////////////////////////////////////////
-						});
+							});
+
+							///////////////////////////////////////Fin Eliminar datos innecesarios////////////////////////////////////
+
+							// render tables
+							doc.render();
+							doc.pipe(res);
+							doc.end();
+
+						}else{
+
+							doc.addTable(
+								[
+									{key: 'dias', label: 'Dias Hospedados', align: 'center'},
+									{key: 'precio', label: 'Precio unitario', align: 'center'},
+									{key: 'Total', label: 'Total', align: 'center'},
+								],
+								habitaciones, {
+									border: null,
+									width: 'fill_body',
+									striped: true,
+									stripedColors: ['#f6f6f6', '#d6c4dd'],
+									cellsPadding: 10,
+									marginLeft: 45,
+									marginRight: 45,
+									headAlign: 'center'
+								});
+							///////////////////////////////////////FIN GENERAR PDF////////////////////////////////////////////////
+
+							///////////////////////////////////////Actualizar Habitaciones////////////////////////////////////////
+							Habitacion.findOneAndUpdate({_id: diasHabitacion2.habitacion}, {$set:{ diponibilidad: 'true'}}, {new:true}, (err, habitacionActualizada)=>{
+							});
+
+							///////////////////////////////////////Insertar Historial////////////////////////////////////////////////
+
+							HistorialModelo.usuario =  facturaEncotrada.Usuario;
+							HistorialModelo.hotel = facturaEncotrada.hotelHospedado;
+							HistorialModelo.NombreHotel = HotelEncotrado.Nombre;
+							HistorialModelo.factura = idFactura;
+							HistorialModelo.servicios = [] ;
+
+							HistorialModelo.save((err, HistorialRegistrado)=>{
+			
+							});
 						
+							///////////////////////////////////////fin de Insertar Historial////////////////////////////////////////////////
+			
 
 
-						///////////////////////////////////////Fin Eliminar datos innecesarios////////////////////////////////////
+
+							///////////////////////////////////////Fin Actualizar Habitaciones////////////////////////////////////
+
+							///////////////////////////////////////Eliminar datos innecesarios////////////////////////////////////////
+							GastosServicios.deleteMany({Usuario: usuarioEncontrado._id}, (err, gastosServicios)=>{
+							
+							});
+
+							Reservacion.findOneAndDelete({usuario: usuarioEncontrado._id}, (err, reservacionDelete)=>{
+							
+							});
+
+							DiasHabitacion.findOneAndDelete({Usuario: usuarioEncontrado._id}, (err, diasDelete)=>{
+							
+							});
+
+							Historial.findOneAndUpdate({factura: idFactura }, {$push: { servicios: { nombreServicios : 'No se solicitaron servicios'}}}, {new: true} , (err, HistrorialActualizado) =>{
+							});
+
+							Factura.findByIdAndDelete(idFactura, (err, facturaEliminada)=>{
+							
+							});
+
+							///////////////////////////////////////Fin Eliminar datos innecesarios////////////////////////////////////
+
+							doc.render();
+							doc.pipe(res);
+							doc.end();
+						}
+						
 					});	
 				});
 			});
 		});
 	});
-
+	
 }
 
 

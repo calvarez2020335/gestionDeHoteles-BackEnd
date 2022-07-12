@@ -74,6 +74,7 @@ function crearReservacion(req, res) {
 								facturaModelo.Subtotal = 0;
 								facturaModelo.total = 0;
 								facturaModelo.hotelHospedado = habitacionEncontrada.hotel;
+								facturaModelo.estado = 'No Confirmado';
 
 								facturaModelo.save((err, facturaGuardada) =>{
 									if (err) return res.status(500).send({ mensaje: 'Error en la peticion de facturaGuardada' });
