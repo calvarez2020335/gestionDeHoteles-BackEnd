@@ -169,7 +169,7 @@ function VerReservacioneUsuario (req , res) {
 	Reservacion.find({usuario: idUsuario }  , (err, reservacionEncontrada ) =>{
 		if(err) return res.status(500).send({ mensaje: 'Error en la peticion de mostrar  reservaciones'});
 		if(!reservacionEncontrada) return res.status(500).send({ mensaje: 'Error al mostrar reservaciones'});
-		return res.status(200).send({mensaje: reservacionEncontrada});
+		return res.status(200).send({Reservacion: reservacionEncontrada});
 	});
 	
 }
